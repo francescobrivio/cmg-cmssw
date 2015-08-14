@@ -86,6 +86,7 @@ class DiLeptonAnalyzer(Analyzer):
         return map(self.__class__.LeptonClass, cmgLeptons)
 
     def process(self, event):
+	#print "--- dentro a process ---"
         self.readCollections(event.input)
 
         if hasattr(self.cfg_ana, 'from_single_objects') and self.cfg_ana.from_single_objects:
@@ -289,6 +290,7 @@ class DiLeptonAnalyzer(Analyzer):
 
             matchedIds = set()
             allMatched = True
+
             for to in info.objects:
                 if self.trigObjMatched(to, legs):
                     matchedIds.add(abs(to.pdgId()))
@@ -313,9 +315,10 @@ class DiLeptonAnalyzer(Analyzer):
         to.matched = False
         for leg in legs:
             # JAN - Single-ele trigger filter has pdg ID 0, to be understood
+	    # FRANCESCO - here to.pdgId() is 0, so pdgId becomes 0 too and pdgID and leg.pdgId result different, so no event pass the trigger matching
             if pdgId == abs(leg.pdgId()) or (pdgId == 0 and abs(leg.pdgId()) == 11):
                 if deltaR2(eta, phi, leg.eta(), leg.phi()) < dR2Max:
                     to.matched = True
                     # leg.trigMatched = True
-
+        #import pdb; pdb.set_trace()
         return to.matched

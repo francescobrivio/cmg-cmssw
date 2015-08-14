@@ -44,7 +44,7 @@ class TauTauAnalyzer( DiLeptonAnalyzer ) :
       # it must have well id'ed and trig matched legs,
       # di-lepton and tri-lepton veto must pass
       result = self.selectionSequence( event,
-                                       fillCounter = False                  ,
+                                       fillCounter = True                  , # FRANCESCO - fillCounter modified to True, otherwise counters are not filled
                                        leg1IsoCut  = self.cfg_ana.looseiso1 ,
                                        leg2IsoCut  = self.cfg_ana.looseiso2 )
 
