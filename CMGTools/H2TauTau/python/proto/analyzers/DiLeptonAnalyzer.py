@@ -86,7 +86,6 @@ class DiLeptonAnalyzer(Analyzer):
         return map(self.__class__.LeptonClass, cmgLeptons)
 
     def process(self, event):
-	#print "--- dentro a process ---"
         self.readCollections(event.input)
 
         if hasattr(self.cfg_ana, 'from_single_objects') and self.cfg_ana.from_single_objects:
@@ -163,8 +162,9 @@ class DiLeptonAnalyzer(Analyzer):
         if len(self.cfg_comp.triggers) > 0:
             requireAllMatched = hasattr(self.cfg_ana, 'allTriggerObjMatched') \
                 and self.cfg_ana.allTriggerObjMatched
+            sameFlavour = hasattr(self.cfg_ana, 'sameFlavour')
             selDiLeptons = [diL for diL in selDiLeptons if
-                            self.trigMatched(event, diL, requireAllMatched)]
+                            self.trigMatched(event, diL, requireAllMatched, sameFlavour)]
 
             if len(selDiLeptons) == 0:
                 return False
@@ -276,34 +276,38 @@ class DiLeptonAnalyzer(Analyzer):
         '''Returns the best diLepton (the one with highest pt1 + pt2).'''
         return max(diLeptons, key=operator.methodcaller('sumPt'))
 
-    def trigMatched(self, event, diL, requireAllMatched=False):
+    def trigMatched(self, event, diL, requireAllMatched=False, sameFlavour=False):
         '''Check that at least one trigger object per pgdId from a given trigger 
-        has a matched leg with the same pdg ID. If requireAllMatched is True, 
+        has a matched leg with the same pdg ID. Enable sameFlavour if both legs 
+        have the same pdgId. If requireAllMatched is True, 
         requires that each single trigger object has a match.'''
         matched = False
         legs = [diL.leg1(), diL.leg2()]
         diL.matchedPaths = set()
 
         for info in event.trigger_infos:
+            
             if not info.fired:
                 continue
 
-            matchedIds = set()
+            matchedIds = []
             allMatched = True
-
+            
             for to in info.objects:
                 if self.trigObjMatched(to, legs):
-                    matchedIds.add(abs(to.pdgId()))
+                    matchedIds.append(abs(to.pdgId()))
                 else:
                     allMatched = False
 
-            if matchedIds == info.objIds:
+            if set(matchedIds) == info.objIds and \
+               len(matchedIds) >= len(legs) * sameFlavour:
                 if requireAllMatched and not allMatched:
                     matched = False
                 else:
                     matched = True
                     diL.matchedPaths.add(info.name)
-
+        
+        #import pdb ; pdb.set_trace()
         return matched
 
     def trigObjMatched(self, to, legs, dR2Max=0.25):  # dR2Max=0.089999
@@ -315,10 +319,11 @@ class DiLeptonAnalyzer(Analyzer):
         to.matched = False
         for leg in legs:
             # JAN - Single-ele trigger filter has pdg ID 0, to be understood
-	    # FRANCESCO - here to.pdgId() is 0, so pdgId becomes 0 too and pdgID and leg.pdgId result different, so no event pass the trigger matching
-            if pdgId == abs(leg.pdgId()) or (pdgId == 0 and abs(leg.pdgId()) == 11):
+            # RIC - same seems to happen with di-tau
+            if pdgId == abs(leg.pdgId()) or \
+               (pdgId == 0 and abs(leg.pdgId()) == 11) or \
+               (pdgId == 0 and abs(leg.pdgId()) == 15):
                 if deltaR2(eta, phi, leg.eta(), leg.phi()) < dR2Max:
-                    to.matched = True
-                    # leg.trigMatched = True
-        #import pdb; pdb.set_trace()
+                    to.matched = True                  
+
         return to.matched
