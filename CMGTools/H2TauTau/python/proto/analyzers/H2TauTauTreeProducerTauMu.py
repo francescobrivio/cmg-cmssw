@@ -24,6 +24,9 @@ class H2TauTauTreeProducerTauMu(H2TauTauTreeProducer):
         self.var(self.tree, 'l2_weight_fakerate_up')
         self.var(self.tree, 'l2_weight_fakerate_down')
 
+        self.var(self.tree, 'HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1')
+        self.var(self.tree, 'HLT_IsoMu24_eta2p1_v1')
+
         if hasattr(self.cfg_ana, 'addIsoInfo') and self.cfg_ana.addIsoInfo:
             self.var(self.tree, 'l1_puppi_iso_pt')
             self.var(self.tree, 'l1_puppi_iso04_pt')
@@ -66,6 +69,9 @@ class H2TauTauTreeProducerTauMu(H2TauTauTreeProducer):
         self.fill(self.tree, 'l2_weight_fakerate', event.tauFakeRateWeightUp)
         self.fill(self.tree, 'l2_weight_fakerate_up', event.tauFakeRateWeightDown)
         self.fill(self.tree, 'l2_weight_fakerate_down', event.tauFakeRateWeight)
+
+        self.fill(self.tree, 'HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1', event.HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1)
+        self.fill(self.tree, 'HLT_IsoMu24_eta2p1_v1', event.HLT_IsoMu24_eta2p1_v1)
 
         if hasattr(self.cfg_ana, 'addIsoInfo') and self.cfg_ana.addIsoInfo:
             self.fill(self.tree, 'l1_puppi_iso_pt', muon.puppi_iso_pt)

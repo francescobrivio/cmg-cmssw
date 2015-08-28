@@ -42,6 +42,11 @@ class TriggerAnalyzer(Analyzer):
         super(TriggerAnalyzer,self).beginLoop(setup)
 
         self.triggerList = self.cfg_comp.triggers
+        if hasattr(self.cfg_ana, 'extraTrig'):
+            self.extraTrig = self.cfg_ana.extraTrig
+        else:
+            self.extraTrig = []
+
         self.vetoTriggerList = None
 
         if hasattr(self.cfg_comp, 'vetoTriggers'):
@@ -70,7 +75,9 @@ class TriggerAnalyzer(Analyzer):
         trigger_passed = False
 
         trigger_infos = []
-        for trigger_name in self.triggerList:
+        triggers_fired = []
+        
+        for trigger_name in self.triggerList + self.extraTrig:
             index = names.triggerIndex(trigger_name)
             if index == len(triggerBits):
                 continue
@@ -80,7 +87,10 @@ class TriggerAnalyzer(Analyzer):
             trigger_infos.append(TriggerInfo(trigger_name, index, fired, prescale))
 
             if fired and (prescale == 1 or self.cfg_ana.usePrescaled):
-                trigger_passed = True
+                if trigger_name in self.triggerList:
+                    trigger_passed = True
+                triggers_fired.append(trigger_name)
+
 
         if self.cfg_ana.addTriggerObjects:
             triggerObjects = self.handles['triggerObjects'].product()
@@ -96,7 +106,14 @@ class TriggerAnalyzer(Analyzer):
         if self.cfg_ana.requireTrigger:
             if not trigger_passed:
                 return False
-            
+
+        if self.cfg_ana.verbose:
+            print 'run %d, lumi %d,event %d' %(event.run, event.lumi, event.eventId) , 'Triggers_fired: ', triggers_fired  
+        if hasattr(self.cfg_ana, 'saveFlag'):
+            if self.cfg_ana.saveFlag:
+                for trig in self.triggerList + self.extraTrig:
+                    setattr(event, trig, (trig in triggers_fired))
+
         self.counters.counter('Trigger').inc('HLT')
         return True
 
