@@ -44,6 +44,10 @@ class H2TauTauTreeProducerTauMu(H2TauTauTreeProducer):
             self.var(self.tree, 'l1_mini_iso')
             self.var(self.tree, 'l1_mini_reliso')
 
+        if hasattr(self.cfg_ana, 'addTnPInfo') and self.cfg_ana.addTnPInfo:
+            self.var(self.tree, 'tag')
+            self.var(self.tree, 'probe')
+
     def process(self, event):
 
         super(H2TauTauTreeProducerTauMu, self).process(event)
@@ -87,5 +91,9 @@ class H2TauTauTreeProducerTauMu(H2TauTauTreeProducer):
             self.fill(self.tree, 'l2_puppi_iso03_pt', tau.puppi_iso03_pt)
             self.fill(self.tree, 'l1_mini_iso', muon.miniAbsIso)
             self.fill(self.tree, 'l1_mini_reliso', muon.miniRelIso)
+
+        if hasattr(self.cfg_ana, 'addTnPInfo') and self.cfg_ana.addTnPInfo:
+            self.fill(self.tree, 'tag', event.tag)
+            self.fill(self.tree, 'probe', event.probe)
 
         self.fillTree(event)

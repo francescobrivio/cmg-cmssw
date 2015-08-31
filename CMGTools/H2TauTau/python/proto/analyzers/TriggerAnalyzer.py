@@ -111,8 +111,15 @@ class TriggerAnalyzer(Analyzer):
             print 'run %d, lumi %d,event %d' %(event.run, event.lumi, event.eventId) , 'Triggers_fired: ', triggers_fired  
         if hasattr(self.cfg_ana, 'saveFlag'):
             if self.cfg_ana.saveFlag:
+<<<<<<< HEAD
                 for trig in self.triggerList + self.extraTrig:
                     setattr(event, trig, (trig in triggers_fired))
+=======
+                for trig in self.triggerList:
+                    setattr(event, 'tag', (trig in triggers_fired))                
+                for trig in self.extraTrig:
+                    setattr(event, 'probe', (trig in triggers_fired))
+>>>>>>> afb0301de9f000452e076175924ec9164038ad44
 
         self.counters.counter('Trigger').inc('HLT')
         return True
