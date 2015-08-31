@@ -41,7 +41,7 @@ ggh125 = creator.makeMCComponent("GGH125", "/GluGluHToTauTau_M125_13TeV_powheg_p
 
 # samples = [HiggsGGH125, HiggsVBF125, HiggsTTH125] + SingleTop
 
-samples = [ggh125]
+samples = [ggh125, ggh160]
 
 split_factor = 1e5
 
@@ -67,7 +67,7 @@ triggEfficiency = cfg.Analyzer(
     common_trigger='HLT_IsoMu24_eta2p1_v1',
     specific_trigger='HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1',
     #addTriggerObjects=True,
-    requireTrigger=True
+    #requireTrigger=True
 )
 
 
@@ -109,9 +109,10 @@ if not production:
     # comp = data_list[0]
     #comp = QCD_Mu15
     comp = ggh125
-    selectedComponents = [comp]
+    #selectedComponents = [comp]
+    selectedComponents = samples
     comp.splitFactor = 1
-    comp.fineSplitFactor = 2
+    comp.fineSplitFactor = 10
     # comp.files = comp.files[]
 
 ###################################################
@@ -123,16 +124,18 @@ if not production:
 # right after the MuTauAnalyzer
 for i in range(0,len(sequence)):
 
-  if sequence[i].name is 'TriggerAnalyzer':
-    sequence[i].requireTrigger = True
-    sequence[i].extraTrig = ['HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1']
-    sequence[i].verbose = True
-    sequence[i].saveFlag = True
+    if sequence[i].name is 'TriggerAnalyzer':
+        sequence[i].requireTrigger = True
+        #sequence[i].requireTrigger = False
+        #sequence[i].extraTrig = ['HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1']
+        sequence[i].extraTrig = ['HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1']
+        sequence[i].verbose = True
+        sequence[i].saveFlag = True
 
-  '''if sequence[i].name is 'TauMuAnalyzer':
-    sequence.insert(i+1,triggEfficiency)
-  else:
-    continue'''
+    '''if sequence[i].name is 'TauMuAnalyzer':
+        sequence.insert(i+1,triggEfficiency)
+    else:
+        continue'''
 
 # Print the sequence (just a check to see if everything is ok)
 print '----> SEQUENCE <----'
