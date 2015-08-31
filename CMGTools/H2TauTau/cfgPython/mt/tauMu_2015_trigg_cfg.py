@@ -3,11 +3,8 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 from CMGTools.H2TauTau.tauMu_2015_base_cfg import sequence
 from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence
 
-<<<<<<< HEAD
-=======
 from CMGTools.H2TauTau.proto.analyzers.H2TauTauTreeProducerTauMuTrigger import H2TauTauTreeProducerTauMuTrigger
 
->>>>>>> afb0301de9f000452e076175924ec9164038ad44
 from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
@@ -21,34 +18,6 @@ from CMGTools.H2TauTau.proto.samples.spring15.higgs import HiggsGGH125, HiggsVBF
 
 from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC, eventSelector
 
-<<<<<<< HEAD
-from CMGTools.H2TauTau.proto.analyzers.TriggerEfficienciesAnalyzer import TriggerEfficienciesAnalyzer
-
-# Get all heppy options; set via "-o production" or "-o production=True"
-
-# production = True run on batch, production = False (or unset) run locally
-production = getHeppyOption('production')
-production = False
-pick_events = False
-syncntuple = True
-
-creator = ComponentCreator()
-ggh160 = creator.makeMCComponent("GGH160", "/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
-
-qcd_flat = creator.makeMCComponent("QCDflat", "/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/RunIISpring15DR74-Asympt25nsRaw_MCRUN2_74_V9-v3/MINIAODSIM", "CMS", ".*root", 2022100000.)
-
-ggh125 = creator.makeMCComponent("GGH125", "/GluGluHToTauTau_M125_13TeV_powheg_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
-
-
-
-#samples = [qcd_flat, TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf]
-
-#samples = [TT_pow, DYJetsToLL_M50, WJetsToLNu, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8]
-
-# samples = [HiggsGGH125, HiggsVBF125, HiggsTTH125] + SingleTop
-
-samples = [ggh125, ggh160]
-=======
 # Get all heppy options; set via "-o production" or "-o production=True"
 # production = True run on batch, production = False (or unset) run locally
 production = getHeppyOption('production')
@@ -65,18 +34,13 @@ ggh125   = creator.makeMCComponent("GGH125" , "/GluGluHToTauTau_M125_13TeV_powhe
 # samples = [TT_pow, DYJetsToLL_M50, WJetsToLNu, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8]
 # samples = [HiggsGGH125, HiggsVBF125, HiggsTTH125] + SingleTop
 
-samples = [ggh125]
->>>>>>> afb0301de9f000452e076175924ec9164038ad44
+samples = [ggh125,ggh160]
 
 split_factor = 1e5
 
 for sample in samples:
-<<<<<<< HEAD
-    sample.triggers = ['HLT_IsoMu24_eta2p1_v1']#mc_triggers_mt
-    #sample.triggers = ['HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1']#mc_triggers_mt
-=======
-    sample.triggers = ['HLT_IsoMu24_eta2p1_v1'] #mc_triggers_mt
->>>>>>> afb0301de9f000452e076175924ec9164038ad44
+    #sample.triggers = ['HLT_IsoMu24_eta2p1_v1'] #mc_triggers_mt
+    sample.triggers = [' HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1 '] #mc_triggers_mt
     sample.splitFactor = splitFactor(sample, split_factor)
 
 data_list = [SingleMuon_Run2015B_17Jul, SingleMuon_Run2015B]
@@ -88,21 +52,6 @@ for sample in data_list:
     sample.lumi = 40.03
 
 
-<<<<<<< HEAD
-### Define mu-tau specific modules
-
-triggEfficiency = cfg.Analyzer(
-    TriggerEfficienciesAnalyzer,
-    name='TriggerEfficienciesAnalyzer',
-    common_trigger='HLT_IsoMu24_eta2p1_v1',
-    specific_trigger='HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1',
-    #addTriggerObjects=True,
-    #requireTrigger=True
-)
-
-
-=======
->>>>>>> afb0301de9f000452e076175924ec9164038ad44
 ###################################################
 ###              ASSIGN PU to MC                ###
 ###################################################
@@ -113,14 +62,6 @@ for mc in samples:
 ###################################################
 ###             SET COMPONENTS BY HAND          ###
 ###################################################
-<<<<<<< HEAD
-selectedComponents = samples + data_list
-selectedComponents = data_list
-# selectedComponents = samples
-
-
-###################################################
-=======
 # selectedComponents = samples + data_list
 # selectedComponents = data_list
 selectedComponents = samples
@@ -135,16 +76,11 @@ treeProducer = cfg.Analyzer(
 )
 
 ###################################################
->>>>>>> afb0301de9f000452e076175924ec9164038ad44
 ###             CHERRY PICK EVENTS              ###
 ###################################################
 
 if pick_events:
-<<<<<<< HEAD
-    eventSelector.toSelect = [1017413, 1033114]
-=======
     eventSelector.toSelect = [178036, 1254835, 227759, 1290544, 228758, 214782, 752109, 1279542, 1448477, 767598, 735715, 738503, 1422548, 534428]
->>>>>>> afb0301de9f000452e076175924ec9164038ad44
     sequence.insert(0, eventSelector)
 
 if not syncntuple:
@@ -162,44 +98,16 @@ if not production:
     # comp = data_list[0]
     #comp = QCD_Mu15
     comp = ggh125
-<<<<<<< HEAD
     #selectedComponents = [comp]
     selectedComponents = samples
     comp.splitFactor = 1
-    comp.fineSplitFactor = 10
-=======
-    selectedComponents = [comp]
-    comp.splitFactor = 1
     comp.fineSplitFactor = 1
->>>>>>> afb0301de9f000452e076175924ec9164038ad44
     # comp.files = comp.files[]
 
 ###################################################
 ###                  SEQUENCE                   ###
 ###################################################
 # Adding specific mutau analyzers to the sequence
-<<<<<<< HEAD
-
-# Loop on sequence to have the requireTrigger=False and to add the triggEffAnalyzer
-# right after the MuTauAnalyzer
-for i in range(0,len(sequence)):
-
-    if sequence[i].name is 'TriggerAnalyzer':
-        sequence[i].requireTrigger = True
-        #sequence[i].requireTrigger = False
-        #sequence[i].extraTrig = ['HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1']
-        sequence[i].extraTrig = ['HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1']
-        sequence[i].verbose = True
-        sequence[i].saveFlag = True
-
-    '''if sequence[i].name is 'TauMuAnalyzer':
-        sequence.insert(i+1,triggEfficiency)
-    else:
-        continue'''
-
-# Print the sequence (just a check to see if everything is ok)
-print '----> SEQUENCE <----'
-=======
 for i, module in enumerate(sequence):
   
     if module.name == 'TriggerAnalyzer':
@@ -212,7 +120,6 @@ for i, module in enumerate(sequence):
     if module.name == 'H2TauTauTreeProducerTauMu':
         module.addTnPInfo = True
 
->>>>>>> afb0301de9f000452e076175924ec9164038ad44
 print sequence
 
 # the following is declared in case this cfg is used in input to the
