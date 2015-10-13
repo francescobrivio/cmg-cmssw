@@ -30,6 +30,12 @@ class H2TauTauTreeProducerBase(TreeAnalyzerNumpy):
     def fill(self, tree, varName, value):
         tree.fill(self.varName(varName), value)
 
+    def vector(self, tree, varName, lenvar, maxlen=None, type=float, filler=None):
+        tree.vector(self.varName(varName), lenvar, maxlen, type, filler = filler)
+
+    def vfill(self, tree, varName, value):
+        tree.vfill(self.varName(varName), value)
+
     def varName(self, name):
         try:
             return self.varDict[name][self.varStyle]
@@ -95,6 +101,17 @@ class H2TauTauTreeProducerBase(TreeAnalyzerNumpy):
     def fillGenParticle(self, tree, p_name, particle):
         self.fillParticle(tree, p_name, particle)
         self.fill(tree, '{p_name}_pdgId'.format(p_name=p_name), particle.pdgId() if not hasattr(particle, 'detFlavour') else particle.detFlavour)
+
+    # trigger object
+    def bookTriggerObject(self, tree, p_name):
+        self.bookParticle(tree, p_name)
+#         self.vector(tree, p_name + '_filter_names', '', int(1000), type = str)
+#         self.vector(tree, p_name + '_filter_names', '', int(1000), type = 'TString')
+
+    def fillTriggerObject(self, tree, p_name, particle):
+        self.fillParticle(tree, p_name, particle)
+#         import pdb ; pdb.set_trace()
+#         self.vfill(tree, p_name + '_filter_names', particle.filterLabels())
 
     # di-tau
     def bookDiLepton(self, tree):

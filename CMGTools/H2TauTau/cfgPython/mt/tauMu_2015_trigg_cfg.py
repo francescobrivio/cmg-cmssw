@@ -3,7 +3,11 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 from CMGTools.H2TauTau.tauMu_2015_base_cfg import sequence
 from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence
 
+<<<<<<< HEAD
 #from CMGTools.H2TauTau.proto.analyzers.H2TauTauTreeProducerTauMuTrigger import H2TauTauTreeProducerTauMuTrigger
+=======
+from CMGTools.H2TauTau.proto.analyzers.L1TriggerAnalyzer import L1TriggerAnalyzer
+>>>>>>> riccardo/CMGTools-from-CMSSW_7_4_7_H2TauUpdates
 
 from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
@@ -22,6 +26,7 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC, eventSel
 # production = True run on batch, production = False (or unset) run locally
 production = getHeppyOption('production')
 
+production = True
 pick_events = False
 syncntuple = True
 
@@ -34,13 +39,21 @@ ggh125   = creator.makeMCComponent("GGH125" , "/GluGluHToTauTau_M125_13TeV_powhe
 # samples = [TT_pow, DYJetsToLL_M50, WJetsToLNu, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8]
 # samples = [HiggsGGH125, HiggsVBF125, HiggsTTH125] + SingleTop
 
+<<<<<<< HEAD
 samples = [ggh125,ggh160]
+=======
+samples = [ggh125, ggh160]
+>>>>>>> riccardo/CMGTools-from-CMSSW_7_4_7_H2TauUpdates
 
 split_factor = 1e5
 
 for sample in samples:
+<<<<<<< HEAD
     #sample.triggers = mc_triggers_mt
     sample.triggers = ['HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1', 'HLT_IsoMu24_eta2p1_v1'] #mc_triggers_mt
+=======
+    sample.triggers = ['HLT_IsoMu20_eta2p1_v1'] #mc_triggers_mt
+>>>>>>> riccardo/CMGTools-from-CMSSW_7_4_7_H2TauUpdates
     sample.splitFactor = splitFactor(sample, split_factor)
 
 data_list = [SingleMuon_Run2015B_17Jul, SingleMuon_Run2015B]
@@ -68,12 +81,21 @@ selectedComponents = samples
 
 
 ###################################################
-###        AD HOC TRIGGER TREE PRODUCER         ###
+###          AD HOC L1 TRIGGER ANALYZER         ###
 ###################################################
+<<<<<<< HEAD
 #treeProducer = cfg.Analyzer(
 #    H2TauTauTreeProducerTauMuTrigger,
 #    name='H2TauTauTreeProducerTauMuTrigger'
 #)
+=======
+L1TriggerAnalyzer = cfg.Analyzer(
+    L1TriggerAnalyzer,
+    name='L1TriggerAnalyzer',
+    collections=['IsoTau', 'Tau', 'Muon'],
+    dR=0.5
+)
+>>>>>>> riccardo/CMGTools-from-CMSSW_7_4_7_H2TauUpdates
 
 ###################################################
 ###             CHERRY PICK EVENTS              ###
@@ -124,14 +146,24 @@ for i, module in enumerate(sequence):
 
     if module.name == 'TriggerAnalyzer':
         module.requireTrigger = True
+<<<<<<< HEAD
         #module.extraTrig = ['HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1']
         module.extraTrig = ['HLT_IsoMu17_eta2p1_MediumIsoPFTau35_Trk1_eta2p1_Reg_v1']
         #module.verbose = False
+=======
+#         module.extraTrig = ['HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1']
+#         module.extraTrig = ['HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v1']
+        module.extraTrig = ['HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v1']
+        # module.verbose = False
+>>>>>>> riccardo/CMGTools-from-CMSSW_7_4_7_H2TauUpdates
         module.saveFlag = True
     
     if module.name == 'H2TauTauTreeProducerTauMu':
         module.addTnPInfo = True
-
+        
+    if module.name == 'TauMuAnalyzer':
+        sequence.insert(i+1, L1TriggerAnalyzer)
+    
 print sequence
 
 # the following is declared in case this cfg is used in input to the

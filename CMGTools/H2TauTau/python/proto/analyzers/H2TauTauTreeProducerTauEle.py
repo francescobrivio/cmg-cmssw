@@ -23,6 +23,20 @@ class H2TauTauTreeProducerTauEle(H2TauTauTreeProducer):
 
         self.var( self.tree, 'weight_zll')
 
+        if hasattr(self.cfg_ana, 'addIsoInfo') and self.cfg_ana.addIsoInfo:
+
+            self.var(self.tree, 'l1_puppi_iso_pt')
+            self.var(self.tree, 'l1_puppi_iso04_pt')
+            self.var(self.tree, 'l1_puppi_iso03_pt')
+
+            self.var(self.tree, 'l2_puppi_iso_pt')
+            self.var(self.tree, 'l2_puppi_iso04_pt')
+            self.var(self.tree, 'l2_puppi_iso03_pt')
+
+            self.var(self.tree, 'l1_mini_iso')
+            self.var(self.tree, 'l1_mini_reliso')
+
+
     def process(self, event):
 
         super(H2TauTauTreeProducerTauEle, self).process(event)
@@ -49,5 +63,17 @@ class H2TauTauTreeProducerTauEle(H2TauTauTreeProducer):
         self.fill(self.tree, 'l2_weight_fakerate_down', event.tauFakeRateWeight)
 
         self.fill(self.tree, 'weight_zll', event.zllWeight)
+
+        if hasattr(self.cfg_ana, 'addIsoInfo') and self.cfg_ana.addIsoInfo:
+
+            self.fill(self.tree, 'l1_puppi_iso_pt', ele.puppi_iso_pt)
+            self.fill(self.tree, 'l1_puppi_iso04_pt', ele.puppi_iso04_pt)
+            self.fill(self.tree, 'l1_puppi_iso03_pt', ele.puppi_iso03_pt)
+            self.fill(self.tree, 'l2_puppi_iso_pt', tau.puppi_iso_pt)
+            self.fill(self.tree, 'l2_puppi_iso04_pt', tau.puppi_iso04_pt)
+            self.fill(self.tree, 'l2_puppi_iso03_pt', tau.puppi_iso03_pt)
+            self.fill(self.tree, 'l1_mini_iso', ele.miniAbsIso)
+            self.fill(self.tree, 'l1_mini_reliso', ele.miniRelIso)
+
 
         self.fillTree(event)

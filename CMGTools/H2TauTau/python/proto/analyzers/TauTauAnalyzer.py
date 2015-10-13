@@ -108,9 +108,9 @@ class TauTauAnalyzer( DiLeptonAnalyzer ) :
     for index, lep in enumerate(cmgLeptons):
       pyl = Muon(lep)
       pyl.associatedVertex = event.goodVertices[0]
-      if not pyl.muonID('POG_ID_Medium')                     : continue
-      if not pyl.relIso(dBetaFactor=0.5, allCharged=0) < 0.3 : continue
-      if not self.testLegKine(pyl, ptcut=10, etacut=2.4)     : continue
+      if not pyl.muonID('POG_ID_Medium')                             : continue
+      if not pyl.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) < 0.3 : continue
+      if not self.testLegKine(pyl, ptcut=10, etacut=2.4)             : continue
       leptons.append( pyl )
     return leptons
 
@@ -121,9 +121,9 @@ class TauTauAnalyzer( DiLeptonAnalyzer ) :
       pyl = Electron(lep)
       pyl.associatedVertex = event.goodVertices[0]
       pyl.rho = event.rho
-      if not pyl.cutBasedId('POG_PHYS14_25ns_v1_Veto')       : continue
-      if not pyl.relIso(dBetaFactor=0.5, allCharged=0) < 0.3 : continue
-      if not self.testLegKine(pyl, ptcut=10, etacut=2.5)     : continue
+      if not pyl.cutBasedId('POG_PHYS14_25ns_v1_Veto')               : continue
+      if not pyl.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) < 0.3 : continue
+      if not self.testLegKine(pyl, ptcut=10, etacut=2.5)             : continue
       otherLeptons.append( pyl )
     return otherLeptons
 

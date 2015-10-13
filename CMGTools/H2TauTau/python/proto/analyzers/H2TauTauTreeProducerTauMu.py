@@ -47,6 +47,14 @@ class H2TauTauTreeProducerTauMu(H2TauTauTreeProducer):
         if hasattr(self.cfg_ana, 'addTnPInfo') and self.cfg_ana.addTnPInfo:
             self.var(self.tree, 'tag')
             self.var(self.tree, 'probe')
+            self.bookTriggerObject(self.tree, 'l1_trig_obj')
+            self.bookTriggerObject(self.tree, 'l2_trig_obj')
+            self.bookParticle(self.tree, 'l1_L1')
+            self.bookParticle(self.tree, 'l2_L1')
+            self.var(self.tree, 'l1_L1_type')
+            self.var(self.tree, 'l2_L1_type')
+        
+        
 
     def process(self, event):
 
@@ -95,5 +103,15 @@ class H2TauTauTreeProducerTauMu(H2TauTauTreeProducer):
         if hasattr(self.cfg_ana, 'addTnPInfo') and self.cfg_ana.addTnPInfo:
             self.fill(self.tree, 'tag', event.tag)
             self.fill(self.tree, 'probe', event.probe)
+            if hasattr(muon, 'to'):
+                self.fillTriggerObject(self.tree, 'l1_trig_obj', muon.to)
+            if hasattr(tau, 'to'):            
+                self.fillTriggerObject(self.tree, 'l2_trig_obj', tau.to)
+            if hasattr(muon, 'L1'):
+                self.fillParticle(self.tree, 'l1_L1', muon.L1)
+                self.fill(self.tree, 'l1_L1_type', muon.L1flavour)
+            if hasattr(tau, 'L1'):
+                self.fillParticle(self.tree, 'l2_L1', tau.L1)
+                self.fill(self.tree, 'l2_L1_type', tau.L1flavour)
 
         self.fillTree(event)

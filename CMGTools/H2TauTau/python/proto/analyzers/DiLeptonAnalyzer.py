@@ -292,7 +292,12 @@ class DiLeptonAnalyzer(Analyzer):
 
             matchedIds = []
             allMatched = True
+<<<<<<< HEAD
             #print '----- NEW EVENT ----'
+=======
+            
+#             import pdb ; pdb.set_trace()
+>>>>>>> riccardo/CMGTools-from-CMSSW_7_4_7_H2TauUpdates
             for to in info.objects:
                 #print '----- NEW TO -----'
                 #print '-----------------> partial matchedIds', matchedIds
@@ -340,5 +345,10 @@ class DiLeptonAnalyzer(Analyzer):
                 #print '-----------------> to.matched: ', deltaR2(eta, phi, leg.eta(), leg.phi()) < dR2Max
                 if deltaR2(eta, phi, leg.eta(), leg.phi()) < dR2Max:
                     to.matched = True
+<<<<<<< HEAD
+=======
+#                     import pdb ; pdb.set_trace()
+                    leg.to = to
+>>>>>>> riccardo/CMGTools-from-CMSSW_7_4_7_H2TauUpdates
 
         return to.matched
