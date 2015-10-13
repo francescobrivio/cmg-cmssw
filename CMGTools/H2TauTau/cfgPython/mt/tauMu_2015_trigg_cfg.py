@@ -3,7 +3,7 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 from CMGTools.H2TauTau.tauMu_2015_base_cfg import sequence
 from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence
 
-from CMGTools.H2TauTau.proto.analyzers.H2TauTauTreeProducerTauMuTrigger import H2TauTauTreeProducerTauMuTrigger
+#from CMGTools.H2TauTau.proto.analyzers.H2TauTauTreeProducerTauMuTrigger import H2TauTauTreeProducerTauMuTrigger
 
 from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
@@ -23,7 +23,7 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC, eventSel
 production = getHeppyOption('production')
 
 pick_events = False
-syncntuple = False
+syncntuple = True
 
 creator = ComponentCreator()
 ggh160   = creator.makeMCComponent("GGH160" , "/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
@@ -39,8 +39,8 @@ samples = [ggh125,ggh160]
 split_factor = 1e5
 
 for sample in samples:
-    #sample.triggers = ['HLT_IsoMu24_eta2p1_v1'] #mc_triggers_mt
-    sample.triggers = [' HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1 '] #mc_triggers_mt
+    #sample.triggers = mc_triggers_mt
+    sample.triggers = ['HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1', 'HLT_IsoMu24_eta2p1_v1'] #mc_triggers_mt
     sample.splitFactor = splitFactor(sample, split_factor)
 
 data_list = [SingleMuon_Run2015B_17Jul, SingleMuon_Run2015B]
@@ -70,17 +70,28 @@ selectedComponents = samples
 ###################################################
 ###        AD HOC TRIGGER TREE PRODUCER         ###
 ###################################################
-treeProducer = cfg.Analyzer(
-    H2TauTauTreeProducerTauMuTrigger,
-    name='H2TauTauTreeProducerTauMuTrigger'
-)
+#treeProducer = cfg.Analyzer(
+#    H2TauTauTreeProducerTauMuTrigger,
+#    name='H2TauTauTreeProducerTauMuTrigger'
+#)
 
 ###################################################
 ###             CHERRY PICK EVENTS              ###
 ###################################################
 
 if pick_events:
-    eventSelector.toSelect = [178036, 1254835, 227759, 1290544, 228758, 214782, 752109, 1279542, 1448477, 767598, 735715, 738503, 1422548, 534428]
+
+    import csv
+    fileName = 'Imperial.csv'
+    f = open(fileName, 'rb')
+    reader = csv.reader(f)
+    evtsToPick = []
+
+    for i, row in enumerate(reader):
+        evtsToPick += [int(j) for j in row]
+
+#    eventSelector.toSelect = [178036, 1254835, 227759, 1290544, 228758, 214782, 752109, 1279542, 1448477, 767598, 735715, 738503, 1422548, 534428]
+    eventSelector.toSelect = evtsToPick
     sequence.insert(0, eventSelector)
 
 if not syncntuple:
@@ -97,9 +108,10 @@ if not production:
     # comp = selectedComponents[0]
     # comp = data_list[0]
     #comp = QCD_Mu15
-    comp = ggh125
-    #selectedComponents = [comp]
-    selectedComponents = samples
+    #comp = ggh125
+    comp = ggh160
+    selectedComponents = [comp]
+    #selectedComponents = samples
     comp.splitFactor = 1
     comp.fineSplitFactor = 1
     # comp.files = comp.files[]
@@ -109,12 +121,12 @@ if not production:
 ###################################################
 # Adding specific mutau analyzers to the sequence
 for i, module in enumerate(sequence):
-  
+
     if module.name == 'TriggerAnalyzer':
         module.requireTrigger = True
-        module.extraTrig = ['HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1']
-        # module.extraTrig = ['HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1']
-        # module.verbose = False
+        #module.extraTrig = ['HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1']
+        module.extraTrig = ['HLT_IsoMu17_eta2p1_MediumIsoPFTau35_Trk1_eta2p1_Reg_v1']
+        #module.verbose = False
         module.saveFlag = True
     
     if module.name == 'H2TauTauTreeProducerTauMu':

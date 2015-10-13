@@ -18,13 +18,13 @@ debugEventContent = False
 
 # choose from 'tau-mu' 'di-tau' 'tau-ele' 'mu-ele' 'all-separate', 'all'
 # channel = 'all'
-#channel = 'tau-mu'
-channel = 'di-tau'
+channel = 'tau-mu'
+#channel = 'di-tau'
 
 # runSVFit enables the svfit mass reconstruction used for the H->tau tau analysis.
 # if false, no mass calculation is carried out
-#runSVFit = False
 runSVFit = True
+#runSVFit = True
 
 # increase to 1000 before running on the batch, to reduce size of log files
 # on your account

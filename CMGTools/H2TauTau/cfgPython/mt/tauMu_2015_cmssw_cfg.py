@@ -1,6 +1,7 @@
 import PhysicsTools.HeppyCore.framework.config as cfg
 
-from tauMu_2015_base_cfg import sequence, treeProducer
+#from tauMu_2015_base_cfg import sequence, treeProducer
+from CMGTools.H2TauTau.tauMu_2015_base_cfg import sequence, treeProducer
 
 from PhysicsTools.HeppyCore.framework.config import printComps
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
@@ -20,7 +21,7 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC, eventSel
 production = getHeppyOption('production')
 production = False
 pick_events = False
-syncntuple = False
+syncntuple = True
 
 # Define extra modules
 tauIsoCalc = cfg.Analyzer(
@@ -57,7 +58,8 @@ ggh160 = creator.makeMCComponent("GGH160", "/SUSYGluGluToHToTauTau_M-160_TuneCUE
 
 qcd_flat = creator.makeMCComponent("QCDflat", "/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/RunIISpring15DR74-Asympt25nsRaw_MCRUN2_74_V9-v3/MINIAODSIM", "CMS", ".*root", 1.0)
 
-samples = [ggh160, qcd_flat, TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf]
+#samples = [ggh160, qcd_flat, TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf]
+samples = [ggh160]
 
 split_factor = 1e5
 
@@ -78,7 +80,6 @@ selectedComponents = samples
 # selectedComponents = mc_dict['HiggsGGH125']
 # for c in selectedComponents : c.splitFactor *= 5
 
-
 # Cherry-pick events
 if pick_events:
     eventSelector.toSelect = [308041,191584,240060,73996]
@@ -93,20 +94,31 @@ if not production:
     comp = ggh160
     selectedComponents = [comp]
     comp.splitFactor = 1
-    comp.fineSplitFactor = 1
+    comp.fineSplitFactor = 6
     # comp.files = comp.files[]
 
+###################################################
+###                  SEQUENCE                   ###
+###################################################
+# set 'from_single_objects' to False in TauMuAnalyzer
+for i, module in enumerate(sequence):
+
+    if module.name == 'TauMuAnalyzer':
+        module.from_single_objects=False
+
+print sequence
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script
-from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
-config = cfg.Config(components=selectedComponents,
-                    sequence=sequence,
-                    services=[],
-                    events_class=Events
-                    )
+#from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
+#config = cfg.Config(components=selectedComponents,
+#                    sequence=sequence,
+#                    services=[],
+#                    events_class=Events
+#                    )
 
-preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg.py", addOrigAsSecondary=False)
+#preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg.py", addOrigAsSecondary=False)
+preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_mt_cfg.py", addOrigAsSecondary=False)
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script

@@ -15,7 +15,7 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence, genAna, dyJets
 
 # mu-tau specific configuration settings
 syncntuple = True
-computeSVfit = False
+computeSVfit = True
 
 # When ready, include weights from CMGTools.H2TauTau.proto.weights.weighttable
 

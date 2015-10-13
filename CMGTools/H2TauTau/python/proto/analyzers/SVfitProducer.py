@@ -17,6 +17,8 @@ class SVfitProducer(Analyzer):
 
     def process(self, event):
 
+	#print '--------------------> Event: ', event.input.eventAuxiliary().id().event()
+
         decayMode1 = -1
         decayMode2 = -1
 
@@ -58,6 +60,7 @@ class SVfitProducer(Analyzer):
 
         metcov = TMatrixD(2, 2)
 
+	#import pdb; pdb.set_trace()
         a_metcov = array.array('d', [event.diLepton.mvaMetSig(0, 0), event.diLepton.mvaMetSig(1, 0),
                                event.diLepton.mvaMetSig(0, 1), event.diLepton.mvaMetSig(1, 1)])
 

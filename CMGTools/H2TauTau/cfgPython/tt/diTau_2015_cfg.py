@@ -113,6 +113,7 @@ ggh160   = creator.makeMCComponent  ("GGH160",
                                      "CMS", 
                                      ".*root", 
                                      1.0)
+
 run2015B = creator.makeDataComponent("DataRun2015B", 
                                      "/Tau/Run2015B-PromptReco-v1/MINIAOD", 
                                      "CMS", 
@@ -120,7 +121,13 @@ run2015B = creator.makeDataComponent("DataRun2015B",
                                      "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/DCSOnly/json_DCSONLY_Run2015B.txt"
                                      )
 
-MC_list = [ggh160]
+VBF125   = creator.makeMCComponent ("VBF125",
+                                    "/VBFHToTauTau_M125_13TeV_powheg_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM ",
+                                    "CMS",
+                                    ".*root",
+                                    1.0)
+
+MC_list = [ggh160, DYJetsToLL_M50, WWTo2L2Nu, WJetsToLNu]
 
 run2015B.intLumi  = '2.0' # in pb
 run2015B.triggers = mc_triggers_tt
@@ -168,16 +175,17 @@ if syncntuple:
 ###################################################
 if pick_events:
 
-    import csv
-    fileName = '/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_7_4_3/src/CMGTools/H2TauTau/cfgPython/2015-sync/Imperial.csv'
+#    import csv
+#    fileName = '/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_7_4_3/src/CMGTools/H2TauTau/cfgPython/2015-sync/Imperial.csv'
 #     fileName = '/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_7_4_3/src/CMGTools/H2TauTau/cfgPython/2015-sync/CERN.csv'
-    f = open(fileName, 'rb')
-    reader = csv.reader(f)
-    evtsToPick = []
+#    f = open(fileName, 'rb')
+#    reader = csv.reader(f)
+#    evtsToPick = []
 
-    for i, row in enumerate(reader):
-        evtsToPick += [int(j) for j in row]
+#    for i, row in enumerate(reader):
+#        evtsToPick += [int(j) for j in row]
 
+    evtsToPick = [21305]
     eventSelector.toSelect = evtsToPick
     sequence.insert(0, eventSelector)
 
@@ -186,10 +194,13 @@ if pick_events:
 ###################################################
 if not production:
   cache                = True
-#   comp                 = my_connect.mc_dict['HiggsGGH125']
-#   comp                 = DYJetsToLL_M50
-#   comp                 = run2015B
-  comp                 = ggh160
+#  comp                 = my_connect.mc_dict['HiggsGGH125']
+#  comp                 = DYJetsToLL_M50
+#  comp                 = run2015B
+#  comp                 = ggh160
+#  comp                 = VBF125
+#  comp                 = WJetsToLNu
+  comp                 = WWTo2L2Nu
   selectedComponents   = [comp]
   comp.splitFactor     = 1
   comp.fineSplitFactor = 1

@@ -33,11 +33,11 @@ tauTauAna = cfg.Analyzer(
   pt1          = 45                          ,
   eta1         = 2.1                         ,
   iso1         = 1.                          ,
-  looseiso1    = 10.                         ,
+  looseiso1    = 999999999.                         ,
   pt2          = 45                          ,
   eta2         = 2.1                         ,
   iso2         = 1.                          ,
-  looseiso2    = 10.                         ,
+  looseiso2    = 999999999.                         ,
 #   isolation    = 'byIsolationMVA3newDMwLTraw',
   isolation    = 'byCombinedIsolationDeltaBetaCorrRaw3Hits', # RIC: 9 March 2015
   m_min        = 10                          ,
@@ -109,15 +109,21 @@ svfitProducer = cfg.Analyzer(
 # MC_list = my_connect.MC_list
 
 from CMGTools.RootTools.utils.splitFactor                     import splitFactor
-from CMGTools.TTHAnalysis.samples.ComponentCreator            import ComponentCreator
-from CMGTools.TTHAnalysis.samples.samples_13TeV_74X           import TTJets_LO, DYJetsToLL_M50, WJetsToLNu
+from CMGTools.RootTools.samples.ComponentCreator              import ComponentCreator
+from CMGTools.RootTools.samples.samples_13TeV_74X import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, SingleTop
+#from CMGTools.TTHAnalysis.samples.ComponentCreator            import ComponentCreator
+#from CMGTools.TTHAnalysis.samples.samples_13TeV_74X           import TTJets_LO, DYJetsToLL_M50, WJetsToLNu
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauTau import mc_triggers as mc_triggers_tt
 
 creator = ComponentCreator()
-ggh160 = creator.makeMCComponent('GGH160', '/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 'CMS', '.*root', 1.0)
+ggh160 = creator.makeMCComponent('GGH160', 
+                                 '/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 
+                                 'CMS',
+                                 '.*root', 
+                                 1.0)
 
-MC_list = [ggh160, TTJets_LO, DYJetsToLL_M50, WJetsToLNu]
-
+#MC_list = [ggh160, TTJets_LO, DYJetsToLL_M50, WJetsToLNu]
+MC_list = [ggh160, DYJetsToLL_M50, WJetsToLNu, WWTo2L2Nu, SingleTop]
 
 first_data = cfg.DataComponent(
     name='first2pb',
@@ -145,9 +151,10 @@ for mc in MC_list:
 ###################################################
 ###             SET COMPONENTS BY HAND          ###
 ###################################################
-selectedComponents = MC_list + data_list
+selectedComponents = MC_list #+ data_list
 # selectedComponents = mc_dict['HiggsGGH125']
-# for c in selectedComponents : c.splitFactor *= 5
+for c in selectedComponents :
+    c.splitFactor *= 10
 
 ###################################################
 ###                  SEQUENCE                   ###
@@ -175,13 +182,15 @@ if pick_events:
 ###################################################
 if not production:
   cache                = True
-#   comp                 = my_connect.mc_dict['HiggsGGH125']
-  comp                 = DYJetsToLL_M50
+#  comp                 = my_connect.mc_dict['HiggsGGH125']
+#  comp                 = DYJetsToLL_M50
+  comp                 = ggh160
   selectedComponents   = [comp]
   comp.splitFactor     = 1
   comp.fineSplitFactor = 1
-  comp.files           = comp.files[:1]
+#  comp.files           = comp.files[:1]
 
+# Useful for mvaMET and SVfit computation
 from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
 preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg.py")
 
@@ -196,6 +205,8 @@ config = cfg.Config( components   = selectedComponents,
                      )
 
 printComps(config.components, True)
+
+print sequence
 
 def modCfgForPlot(config):
   config.components = []
