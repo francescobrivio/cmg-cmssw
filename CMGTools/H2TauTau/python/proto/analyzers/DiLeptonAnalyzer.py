@@ -318,7 +318,7 @@ class DiLeptonAnalyzer(Analyzer):
         to.matched = False
         for leg in legs:
             # JAN - Single-ele trigger filter has pdg ID 0, to be understood
-            # RIC - same seems to happen with di-tau
+            # RIC - same seems to happen with di-tau and mu + tau monitoring 
             if pdgId == abs(leg.pdgId()) or \
                (pdgId == 0 and abs(leg.pdgId()) == 11) or \
                (pdgId == 0 and abs(leg.pdgId()) == 15):
