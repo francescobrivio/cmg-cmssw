@@ -169,7 +169,6 @@ class DiLeptonAnalyzer(Analyzer):
                 return False
             elif fillCounter:
                 self.counters.counter('DiLepton').inc('trig matched')
-                #print '-------------> Event: ',event.input.eventAuxiliary().id().event(),' is TRIG MATCHED'
 
 
 
@@ -287,34 +286,20 @@ class DiLeptonAnalyzer(Analyzer):
         sameFlavour = (abs(legs[0].pdgId()) == abs(legs[1].pdgId()))
 
         for info in event.trigger_infos:
+            
             if not info.fired:
                 continue
 
             matchedIds = []
             allMatched = True
-<<<<<<< HEAD
-            #print '----- NEW EVENT ----'
-=======
             
 #             import pdb ; pdb.set_trace()
->>>>>>> riccardo/CMGTools-from-CMSSW_7_4_7_H2TauUpdates
             for to in info.objects:
-                #print '----- NEW TO -----'
-                #print '-----------------> partial matchedIds', matchedIds
-                #print '-----------------> trigObjMatched = ', self.trigObjMatched(to, legs)
                 if self.trigObjMatched(to, legs):
                     matchedIds.append(abs(to.pdgId()))
-		    #print '-----------------> true matchedIds', matchedIds
                 else:
                     allMatched = False
-		    #print '-----------------> false matchedIds', matchedIds
 
-            #print '-----------------> allMatched = ', allMatched
-            #print '-----------------> total set(matchedIds) = ', set(matchedIds)
-            #print '-----------------> info.objIds = ', info.objIds
-            #print '-----------------> len(matchedIds) = ', len(matchedIds)
-            #print '-----------------> len(legs) * sameFlavour = ', len(legs) * sameFlavour
-            #print '-----------------> set(matchedIds) == info.objIds ', set(matchedIds) == info.objIds
             if set(matchedIds) == info.objIds and \
                len(matchedIds) >= len(legs) * sameFlavour:
                 if requireAllMatched and not allMatched:
@@ -322,8 +307,7 @@ class DiLeptonAnalyzer(Analyzer):
                 else:
                     matched = True
                     diL.matchedPaths.add(info.name)
-
-        #print '-----------------> matched = ', matched
+        
         return matched
 
     def trigObjMatched(self, to, legs, dR2Max=0.25):  # dR2Max=0.089999
@@ -336,19 +320,12 @@ class DiLeptonAnalyzer(Analyzer):
         for leg in legs:
             # JAN - Single-ele trigger filter has pdg ID 0, to be understood
             # RIC - same seems to happen with di-tau and mu + tau monitoring 
-            #print '-----------------> pdgId', pdgId
-            #print '-----------------> abs(leg.pdgId())', abs(leg.pdgId())
             if pdgId == abs(leg.pdgId()) or \
                (pdgId == 0 and abs(leg.pdgId()) == 11) or \
                (pdgId == 0 and abs(leg.pdgId()) == 15):
-                #print '-----------------> deltaR2: ', deltaR2(eta, phi, leg.eta(), leg.phi())
-                #print '-----------------> to.matched: ', deltaR2(eta, phi, leg.eta(), leg.phi()) < dR2Max
                 if deltaR2(eta, phi, leg.eta(), leg.phi()) < dR2Max:
                     to.matched = True
-<<<<<<< HEAD
-=======
 #                     import pdb ; pdb.set_trace()
                     leg.to = to
->>>>>>> riccardo/CMGTools-from-CMSSW_7_4_7_H2TauUpdates
 
         return to.matched
