@@ -190,7 +190,9 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
 
 
     def testElectronID(self, electron):
+	#import pdb; pdb.set_trace()
         mva = electron.mvaRun2('NonTrigPhys14')
+        #mva = electron.mvaRun2('NonTrigSpring15')
         eta = abs(electron.superCluster().eta())
         if eta < 0.8:
             return mva > 0.933

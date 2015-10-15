@@ -92,11 +92,14 @@ if not production:
     # comp = data_list[0]
     # comp = QCD_Mu15
     comp = DYJetsToLL_M50
+    #comp = WJetsToLNu
+    #comp = TT_pow
     selectedComponents = [comp]
     comp.splitFactor = 1
     comp.fineSplitFactor = 1
     # comp.files = comp.files[]
 
+print sequence
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script
