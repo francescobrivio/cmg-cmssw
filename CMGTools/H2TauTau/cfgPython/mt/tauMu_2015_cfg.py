@@ -94,9 +94,10 @@ if not production:
     comp = DYJetsToLL_M50
     #comp = WJetsToLNu
     #comp = TT_pow
+    #comp = ggh160
     selectedComponents = [comp]
     comp.splitFactor = 1
-    comp.fineSplitFactor = 1
+    comp.fineSplitFactor = 4
     # comp.files = comp.files[]
 
 print sequence
