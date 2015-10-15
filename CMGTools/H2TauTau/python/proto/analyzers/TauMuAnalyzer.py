@@ -105,6 +105,8 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
             pyl = self.__class__.OtherLeptonClass(lep)
             pyl.associatedVertex = event.goodVertices[0]
             pyl.rho = event.rho
+            # FRANCESCO - added the event number to the lepton (electron)
+            pyl.event = event
             otherLeptons.append(pyl)
         return otherLeptons
 
