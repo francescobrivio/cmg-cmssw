@@ -27,8 +27,10 @@ syncntuple = True
 
 creator = ComponentCreator()
 #ggh160 = creator.makeMCComponent("GGH160", "/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
-#qcd_flat = creator.makeMCComponent("QCDflat", "/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/RunIISpring15DR74-Asympt25nsRaw_MCRUN2_74_V9-v3/MINIAODSIM", "CMS", ".*root", 2022100000.)
 #ggh125 = creator.makeMCComponent("GGH125", "/GluGluHToTauTau_M125_13TeV_powheg_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+
+#qcd_flat = creator.makeMCComponent("QCDflat", "/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/RunIISpring15DR74-Asympt25nsRaw_MCRUN2_74_V9-v3/MINIAODSIM", "CMS", ".*root", 2022100000.)
+QCD_Mu15 = creator.makeMCComponent("QCD_Mu15", "/QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 720.65e6*0.00042)
 
 ggh120 = creator.makeMCComponent("GGH120", "/SUSYGluGluToHToTauTau_M-120_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 ggh130 = creator.makeMCComponent("GGH130", "/SUSYGluGluToHToTauTau_M-130_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
@@ -45,8 +47,7 @@ ggh1200 = creator.makeMCComponent("GGH1200", "/SUSYGluGluToHToTauTau_M-1200_Tune
 #samples = [TT_pow, DYJetsToLL_M50, WJetsToLNu, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8]
 # samples = [HiggsGGH125, HiggsVBF125, HiggsTTH125] + SingleTop
 
-samples = [ggh160, WJetsToLNu, TT_pow, DYJetsToLL_M50]
-samples += [ggh120, ggh130, ggh200, ggh400, ggh600, ggh800, ggh1000, ggh1200]
+samples = [ggh160, WJetsToLNu, TT_pow, DYJetsToLL_M50, ggh120, ggh130, ggh200, ggh400, ggh600, ggh800, ggh1000, ggh1200, QCD_Mu15]
 
 split_factor = 1e5
 
@@ -99,7 +100,7 @@ if not production:
     #selectedComponents = [comp]
     #comp = selectedComponents[0]
     #comp = data_list[0]
-    #comp = QCD_Mu15
+    comp = QCD_Mu15
     #comp = DYJetsToLL_M50
     #comp = WJetsToLNu
     #comp = TT_pow
@@ -112,10 +113,10 @@ if not production:
     #comp = ggh600
     #comp = ggh800
     #comp = ggh1000
-    comp = ggh1200
+    #comp = ggh1200
     selectedComponents = [comp]
     comp.splitFactor = 1
-    comp.fineSplitFactor = 2
+    comp.fineSplitFactor = 4
     # comp.files = comp.files[]
 
 print sequence
