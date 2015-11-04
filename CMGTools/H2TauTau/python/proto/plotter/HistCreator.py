@@ -3,6 +3,8 @@ import pickle
 from CMGTools.H2TauTau.proto.plotter.PlotConfigs import HistogramCfg
 from CMGTools.H2TauTau.proto.plotter.DataMCPlot import DataMCPlot
 
+from CMGTools.RootTools.DataMC.Histogram import Histogram
+
 from ROOT import TH1F
 
 def initHist(hist, vcfg):
@@ -37,7 +39,7 @@ def createHistogram(hist_cfg, all_stack=False, verbose=False):
                 total_hist.Scale(cfg.total_scale)
         else:
             # It's a sample cfg
-            hname = hist_cfg.name + ' ' + cfg.name + ' ' + vcfg.name
+            hname = '_'.join([hist_cfg.name, cfg.name, vcfg.name, cfg.dir_name])
             if 'xmin' in vcfg.binning:
                 hist = TH1F(hname, '', vcfg.binning['nbinsx'], 
                     vcfg.binning['xmin'], vcfg.binning['xmax'])
@@ -68,18 +70,21 @@ def createHistogram(hist_cfg, all_stack=False, verbose=False):
                 shape_cut = '({c}) * {we}'.format(c=shape_cut, we=weight)
 
 
-            ttree.Project(hname, vcfg.name, norm_cut)
+            ttree.Project(hname, vcfg.drawname, norm_cut)
 
             if shape_cut != norm_cut:
                 scale = hist.Integral()
-                ttree.Project(hname, vcfg.name, shape_cut)
+                ttree.Project(hname, vcfg.drawname, shape_cut)
                 hist.Scale(scale/hist.Integral())
 
             stack = all_stack or (not cfg.is_data and not cfg.is_signal)
 
             hist.Scale(cfg.scale)
 
-            plot_hist = plot.AddHistogram(cfg.name, hist, stack=stack)
+            if cfg.name in plot:
+                plot[cfg.name].Add(Histogram(cfg.name, hist))
+            else:
+                plot_hist = plot.AddHistogram(cfg.name, hist, stack=stack)
 
             if not cfg.is_data:
                 plot_hist.SetWeight(hist_cfg.lumi*cfg.xsec/cfg.sumweights)

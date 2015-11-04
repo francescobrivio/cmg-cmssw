@@ -217,10 +217,11 @@ class JetAnalyzer(Analyzer):
 
     def testBJet(self, jet):
         # medium csv working point
-        # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_3
+        # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         jet.btagMVA = jet.btag('pfCombinedInclusiveSecondaryVertexV2BJetTags')
-        # jet.btagFlag = jet.btagWP('CSVv2IVFM')
-        jet.btagFlag = jet.btagMVA > 0.814
+        jet.btagFlag = jet.btagMVA > 0.89
+
+        # Use the following once we start applying data-MC scale factors:
         # jet.btagFlag = self.btagSF.isbtagged(
         #     jet.pt(),
         #     jet.eta(),

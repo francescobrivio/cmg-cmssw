@@ -1,4 +1,5 @@
 tauIDs = [
+<<<<<<< HEAD
     #('againstElectron{wp}', ['Loose', 'Medium', 'Tight']),
     ('againstElectron{wp}MVA5', ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight']),
     'againstElectronMVA5category',
@@ -18,6 +19,18 @@ tauIDs = [
     #('by{wp}IsolationMVA3newDMwoLT', ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']),
     ('by{wp}IsolationMVA3oldDMwLT', ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']),
     #('by{wp}IsolationMVA3oldDMwoLT', ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']),
+=======
+    ('againstElectron{wp}MVA5', ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight']),
+    'againstElectronMVA5category',
+    'againstElectronMVA5raw',
+    ('againstMuon{wp}3', ['Loose', 'Tight']),
+    'byCombinedIsolationDeltaBetaCorrRaw3Hits',
+    'byIsolationMVA3newDMwLTraw',
+    'byIsolationMVA3oldDMwLTraw',
+    ('by{wp}CombinedIsolationDeltaBetaCorr3Hits', ['Loose', 'Medium', 'Tight']),
+    ('by{wp}IsolationMVA3newDMwLT', ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']),
+    ('by{wp}IsolationMVA3oldDMwLT', ['VLoose', 'Loose', 'Medium', 'Tight', 'VTight', 'VVTight']),
+>>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
     'chargedIsoPtSum',
     'decayModeFinding',
     'decayModeFindingNewDMs',

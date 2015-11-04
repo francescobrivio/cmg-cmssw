@@ -5,15 +5,17 @@ import ROOT
 from optparse import OptionParser
 
 from varCfg import var_dict
+from DisplayManager import DisplayManager
 
 # TODO (welcome by everybody):
 # - Please add more variables to varCfg.py if the default range finding doesn't
 #   give good results
-# - Add ratio plots
+# - Add ratio plots (YT : 25 Jul done ... please feel free to modify)
 # - Extend this list :-)
 
 
 ROOT.gROOT.SetBatch(True)
+ROOT.gStyle.SetOptStat(0)
 
 colours = [1, 2, 3, 6, 8]
 styles = [2, 1, 3, 4, 5]
@@ -35,17 +37,17 @@ def applyHistStyle(h, i):
     h.SetStats(False)
 
 
-def comparisonPlots(u_names, trees, titles, pname='sync.pdf'):
+def comparisonPlots(u_names, trees, titles, pname='sync.pdf', ratio=True):
 
-    c = ROOT.TCanvas()
-    c.Print(pname+'[')
-
+    display = DisplayManager(pname, ratio)
+   
     for branch in u_names:
         nbins = 50
         min_x = min(t.GetMinimum(branch) for t in trees)
         max_x = max(t.GetMaximum(branch) for t in trees)
+        title_x = branch
 
-        if min_x == max_x:
+        if min_x == max_x or all(t.GetMinimum(branch) == t.GetMaximum(branch) for t in trees):
             continue
 
         if min_x < -900 and max_x < -min_x * 1.5:
@@ -54,40 +56,27 @@ def comparisonPlots(u_names, trees, titles, pname='sync.pdf'):
         min_x = min(0., min_x)
 
         if branch in var_dict:
-            nbins = var_dict[branch]['nbinsx']
-            min_x = var_dict[branch]['xmin']
-            max_x = var_dict[branch]['xmax']
+            b_d = var_dict[branch]
+            nbins = b_d['nbinsx'] if 'nbinsx' in b_d else nbins
+            min_x = b_d['xmin'] if 'xmin' in b_d else min_x
+            max_x = b_d['xmax'] if 'xmax' in b_d else max_x
+            title_x = b_d['title'] if 'title' in b_d else title_x
 
 
         hists = []
         for i, t in enumerate(trees):
-            h_name = branch+t.GetName()
+            h_name = branch+t.GetName()+str(i)
             h = ROOT.TH1F(h_name, branch, nbins, min_x, max_x + (max_x - min_x) * 0.01)
+            h.Sumw2()
+            h.GetXaxis().SetTitle(title_x)
+            h.GetYaxis().SetTitle('Entries')
             applyHistStyle(h, i)
             t.Project(h_name, branch, '1') # Should introduce weight...
             hists.append(h)
-        
-        ymax = max(h.GetMaximum() for h in hists)
 
-        leg = ROOT.TLegend(0.15,0.79,0.5,0.89)
-        leg.SetFillColor(0)
-        leg.SetFillStyle(0)
-        leg.SetLineColor(0)
 
-        for i, h in enumerate(hists):
-            title = titles[i]
-            h.GetYaxis().SetRangeUser(0., ymax * 1.2)
-            leg.AddEntry(h, title + ': ' + str(h.Integral()))
-            if i == 0:
-                h.Draw('HIST E')
-            else:
-                h.Draw('SAME HIST E')
+        display.Draw(hists, titles)
 
-        leg.Draw()
-
-        c.Print(pname)
-
-    c.Print(pname+']')
 
 def interSect(tree1, tree2, var='evt', common=False, save=False,  titles=[]):
     # run, lumi, evt
@@ -130,6 +119,38 @@ def interSect(tree1, tree2, var='evt', common=False, save=False,  titles=[]):
 
     return tlist1, tlist2
 
+
+def scanForDiff(tree1, tree2, branch_names, scan_var='pt_1', index_var='evt'):
+    # tree1.BuildIndex(index_var)
+    # index1 = tree1.GetTreeIndex()
+    tree2.BuildIndex(index_var)
+
+    diff_events = []
+
+    for entry_1 in tree1:
+        ind = int(getattr(tree1, index_var))
+        tree2.GetEntryWithIndex(ind)
+
+        var1 = getattr(tree1, scan_var)
+        var2 = getattr(tree2, scan_var)
+
+        if tree1.evt != tree2.evt:
+            continue
+
+        if round(var1, 6) != round(var2, 6): 
+            diff_events.append(ind)
+            print 'Event', ind
+            for branch in branch_names:
+                v1 = getattr(tree1, branch)
+                v2 = getattr(tree2, branch)
+                if round(v1, 6) != round(v2, 6) and v1 > -99.:
+                    print '{b:>43}: {v1:>8.4f}, {v2:>8.4f}'.format(b=branch, v1=v1, v2=v2)
+            print
+
+    print 'Found', len(diff_events), 'events with differences in', scan_var
+    print diff_events
+
+
 if __name__ == '__main__':
         
     usage = '''
@@ -151,6 +172,9 @@ if __name__ == '__main__':
     parser.add_option('-t', '--titles', type='string', dest='titles', default='Imperial,KIT', help='Comma-separated list of titles for the N input files (e.g. Imperial,KIT)')
     parser.add_option('-i', '--no-intersection', dest='do_intersect', action='store_false', default=True, help='Do not produce plots for events not in common')
     parser.add_option('-c', '--no-common', dest='do_common', action='store_false', default=True, help='Do not produce plots for events in common')
+    parser.add_option('-r', '--no-ratio', dest='do_ratio', action='store_false', default=True, help='Do not show ratio plots')
+    parser.add_option('-d', '--diff', dest='do_diff', action='store_true', default=False, help='Print events where single variable differs')
+    parser.add_option('-v', '--var-diff', dest='var_diff', default='pt_1', help='Variable for printing single event diffs')
 
     (options,args) = parser.parse_args()
 
@@ -163,6 +187,15 @@ if __name__ == '__main__':
     if len(titles) < len(args):
         print 'Provide at least as many titles as input files'
         sys.exit(1)
+
+    for i, arg in enumerate(args):
+        if arg.endswith('.txt'):
+            f_txt = open(arg)
+            for line in f_txt.read().splitlines():
+                line.strip()
+                if line.startswith('/afs'):
+                    args[i] = line
+                    break
 
     tfiles = [ROOT.TFile(arg) for arg in args]
 
@@ -178,19 +211,23 @@ if __name__ == '__main__':
 
     print 'Making plots for all common branches', u_names
 
-    comparisonPlots(u_names, trees, titles)
+    comparisonPlots(u_names, trees, titles, 'sync.pdf', options.do_ratio)
+
 
     if len(trees) == 2 and options.do_intersect:
         intersect = interSect(trees[0], trees[1], save=True, titles=titles)
         trees[0].SetEntryList(intersect[0])
         trees[1].SetEntryList(intersect[1])
-        comparisonPlots(u_names, trees, titles, 'intersect.pdf')
+        if not all(l.GetN() == 0 for l in intersect):
+            comparisonPlots(u_names, trees, titles, 'intersect.pdf', options.do_ratio)
 
 
-    if len(trees) == 2:
+    if len(trees) == 2 and options.do_common:
         intersect = interSect(trees[0], trees[1], common=True)
         trees[0].SetEntryList(intersect[0])
         trees[1].SetEntryList(intersect[1])
-        comparisonPlots(u_names, trees, titles, 'common.pdf')
+        comparisonPlots(u_names, trees, titles, 'common.pdf', options.do_ratio)
 
-
+    if len(trees) == 2 and options.do_diff:
+        scanForDiff(trees[0], trees[1], u_names, scan_var=options.var_diff)
+    

@@ -42,10 +42,16 @@ class TriggerAnalyzer(Analyzer):
         super(TriggerAnalyzer,self).beginLoop(setup)
 
         self.triggerList = self.cfg_comp.triggers
+<<<<<<< HEAD
         if hasattr(self.cfg_ana, 'extraTrig'):
             self.extraTrig = self.cfg_ana.extraTrig
         else:
             self.extraTrig = []
+=======
+        self.triggerObjects = []
+        if hasattr(self.cfg_comp, 'triggerobjects'):
+            self.triggerObjects = self.cfg_comp.triggerobjects
+>>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
 
         self.vetoTriggerList = None
 
@@ -56,7 +62,11 @@ class TriggerAnalyzer(Analyzer):
         self.counters.addCounter('Trigger')
         self.counters.counter('Trigger').register('All events')
         self.counters.counter('Trigger').register('HLT')
-        
+
+        for trigger in self.triggerList:
+            self.counters.counter('Trigger').register(trigger)
+            self.counters.counter('Trigger').register(trigger + 'prescaled')
+
 
     def process(self, event):
         self.readCollections(event.input)
@@ -87,22 +97,40 @@ class TriggerAnalyzer(Analyzer):
             trigger_infos.append(TriggerInfo(trigger_name, index, fired, prescale))
 
             if fired and (prescale == 1 or self.cfg_ana.usePrescaled):
+<<<<<<< HEAD
                 if trigger_name in self.triggerList:
                     trigger_passed = True
                 triggers_fired.append(trigger_name)
 
+=======
+                trigger_passed = True
+                self.counters.counter('Trigger').inc(trigger_name)            
+            elif fired:
+                print 'WARNING: Trigger not passing because of prescale', trigger_name
+                self.counters.counter('Trigger').inc(trigger_name + 'prescaled')
+
+
+        if self.cfg_ana.requireTrigger:
+            if not trigger_passed:
+                return False
+>>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
 
         if self.cfg_ana.addTriggerObjects:
             triggerObjects = self.handles['triggerObjects'].product()
             for to in triggerObjects:
                 to.unpackPathNames(names)
                 for info in trigger_infos:
-                    if to.hasPathName(info.name, True):
+                    if to.hasPathName(info.name):
+                        # print 'TO name', [n for n in to.filterLabels()], to.hasPathName(info.name, False)
+                        if self.triggerObjects:
+                            if not any(n in to.filterLabels() for n in self.triggerObjects):
+                                continue
                         info.objects.append(to)
                         info.objIds.add(abs(to.pdgId()))
 
         event.trigger_infos = trigger_infos
 
+<<<<<<< HEAD
         if self.cfg_ana.requireTrigger:
             if not trigger_passed:
                 return False
@@ -116,6 +144,9 @@ class TriggerAnalyzer(Analyzer):
                 for trig in self.extraTrig:
                     setattr(event, 'probe', (trig in triggers_fired))
 
+=======
+            
+>>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
         self.counters.counter('Trigger').inc('HLT')
         return True
 

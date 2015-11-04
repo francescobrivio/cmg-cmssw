@@ -17,10 +17,9 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence, genAna, dyJets
 
 # 'Nom', 'Up', 'Down', or None
 shift = None
-syncntuple = False
+syncntuple = True
 computeSVfit = False
-production = True  # production = True run on batch, production = False run locally
-
+production = False  # production = True run on batch, production = False run locally
 #production = True  # production = True run on batch, production = False run locally
 
 # When ready, include weights from CMGTools.H2TauTau.proto.weights.weighttable
@@ -42,7 +41,7 @@ dyJetsFakeAna.channel = 'et'
 tauEleAna = cfg.Analyzer(
     TauEleAnalyzer,
     name='TauEleAnalyzer',
-    pt1=23,
+    pt1=24,
     eta1=2.1,
     iso1=0.1,
     looseiso1=9999.,
@@ -134,10 +133,12 @@ svfitProducer = cfg.Analyzer(
 # my_connect.connect()
 # MC_list = my_connect.MC_list
 
-from CMGTools.RootTools.samples.samples_13TeV_74X import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCDPtEMEnriched, WWTo2L2Nu, ZZp8, WZp8, SingleTop, QCDPtbcToE
-from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleElectron_Run2015B_17Jul, SingleElectron_Run2015B
-from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauEle import mc_triggers as mc_triggers_et
-from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauEle import data_triggers as data_triggers_et
+from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCDPtEMEnriched, WWTo2L2Nu, ZZp8, WZp8, SingleTop, QCDPtbcToE
+from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleElectron_Run2015D_05Oct, SingleElectron_Run2015B_05Oct, SingleElectron_Run2015D_Promptv4
+from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG160 as ggh160
+
+from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauEle import mc_triggers, mc_triggerfilters
+from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauEle import data_triggers, data_triggerfilters
 
 # from CMGTools.H2TauTau.proto.samples.spring15.higgs import HiggsGGH125, HiggsVBF125, HiggsTTH125
 
@@ -153,27 +154,23 @@ samples = [TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu
 samples = [TT_pow, DYJetsToLL_M50, WJetsToLNu, WWTo2L2Nu, ZZp8, WZp8]
 
 # samples += [HiggsGGH125, HiggsVBF125, HiggsTTH125]
-samples += SingleTop  + QCDPtEMEnriched + QCDPtbcToE
+samples += SingleTop  + QCDPtEMEnriched + QCDPtbcToE + [ggh160]
 
 split_factor = 1e5
 
 for sample in samples:
-    sample.triggers = mc_triggers_et
+    sample.triggers = mc_triggers
+    sample.triggerobjects = mc_triggerfilters
     sample.splitFactor = splitFactor(sample, split_factor)
 
-data_list = [SingleElectron_Run2015B_17Jul, SingleElectron_Run2015B]
+data_list = [SingleElectron_Run2015D_05Oct, SingleElectron_Run2015B_05Oct, SingleElectron_Run2015D_Promptv4]
 
 for sample in data_list:
-    sample.triggers = data_triggers_et
+    sample.triggers = data_triggers
+    sample.triggerobjects = data_triggerfilters
     sample.splitFactor = splitFactor(sample, split_factor)
     sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt'
     sample.lumi = 40.03
-
-
-for sample in samples:
-    sample.triggers = mc_triggers_et
-    sample.splitFactor = splitFactor(sample, split_factor)
-
 
 
 ###################################################
@@ -187,8 +184,9 @@ for mc in samples:
 ###             SET COMPONENTS BY HAND          ###
 ###################################################
 selectedComponents = samples
-selectedComponents = [DYJetsToLL_M50]
-selectedComponents = data_list
+selectedComponents = [SingleElectron_Run2015D_Promptv4]
+selectedComponents = [ggh160]
+# selectedComponents = data_list
 # selectedComponents = mc_dict['HiggsGGH125']
 # for c in selectedComponents : c.splitFactor *= 5
 
@@ -223,7 +221,7 @@ if not production:
     # comp = ggh160
     comp = selectedComponents[0]
     selectedComponents = [comp]
-    comp.splitFactor = 1
+    comp.splitFactor = 4
     comp.fineSplitFactor = 1
 #    comp.files = comp.files[:1]
 

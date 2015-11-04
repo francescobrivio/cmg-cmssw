@@ -66,8 +66,8 @@ class HistDrawer:
     def datasetInfo(plot):
         year = ''
         year = '2015'
-        lumi = plot.lumi if hasattr(plot, 'lumi') else 0.
-        unit = plot.lumi_unit if hasattr(plot, 'lumi_unit') else 'pb'
+        lumi = plot.lumi/1000. if hasattr(plot, 'lumi') else 0.
+        unit = plot.lumi_unit if hasattr(plot, 'lumi_unit') else 'fb'
         energy = plot.com_energy if hasattr(plot, 'com_energy') else 13
         return year, lumi, energy, unit
 
@@ -120,7 +120,7 @@ class HistDrawer:
         pad.cd()
         pad.SetLogy(SetLogy)
 
-        plot.DrawStack('HIST')
+        plot.DrawStack('HIST', print_norm=plot.name=='_norm_') # magic word to print integrals
 
         h = plot.supportHist
         h.GetXaxis().SetLabelColor(1)
@@ -188,9 +188,9 @@ class HistDrawer:
             HistDrawer.keeper.append(box)
         print channel
         if channel == 'TauMu':
-            HistDrawer.CMSPrelim(plot, pad, '#tau_{#mu}#tau_{h}', legend=plot.legendPos)
+            HistDrawer.CMSPrelim(plot, pad, '#mu#tau_{h}', legend=plot.legendPos)
         elif channel == 'TauEle':
-            HistDrawer.CMSPrelim(plot, pad, '#tau_{e}#tau_{h}', legend=plot.legendPos)
+            HistDrawer.CMSPrelim(plot, pad, 'e#tau_{h}', legend=plot.legendPos)
         can.cd()
 
         plotname = plot_dir + '/'

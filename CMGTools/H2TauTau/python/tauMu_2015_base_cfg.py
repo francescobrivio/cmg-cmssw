@@ -36,7 +36,10 @@ dyJetsFakeAna.channel = 'mt'
 tauMuAna = cfg.Analyzer(
     TauMuAnalyzer,
     name='TauMuAnalyzer',
+<<<<<<< HEAD
 #    pt1=18,
+=======
+>>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
     pt1=19,
     eta1=2.1,
     iso1=0.1,

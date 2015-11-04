@@ -8,7 +8,7 @@ from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 from CMGTools.RootTools.utils.splitFactor import splitFactor
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 #from CMGTools.RootTools.samples.samples_13TeV_74X import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, SingleTop
-from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2_fra import WJetsToLNu, TT_pow, DYJetsToLL_M50
+from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import WJetsToLNu, TT_pow, DYJetsToLL_M50
 #from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015B_17Jul, SingleMuon_Run2015B
 from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import mc_triggers as mc_triggers_mt
@@ -22,15 +22,13 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC, eventSel
 # production = True run on batch, production = False (or unset) run locally
 production = getHeppyOption('production')
 production = False
-pick_events = True
+pick_events = False
 syncntuple = True
 
 creator = ComponentCreator()
 #ggh160 = creator.makeMCComponent("GGH160", "/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
-#ggh125 = creator.makeMCComponent("GGH125", "/GluGluHToTauTau_M125_13TeV_powheg_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
-
 #qcd_flat = creator.makeMCComponent("QCDflat", "/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/RunIISpring15DR74-Asympt25nsRaw_MCRUN2_74_V9-v3/MINIAODSIM", "CMS", ".*root", 2022100000.)
-QCD_Mu15 = creator.makeMCComponent("QCD_Mu15", "/QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 720.65e6*0.00042)
+#ggh125 = creator.makeMCComponent("GGH125", "/GluGluHToTauTau_M125_13TeV_powheg_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 
 ggh120 = creator.makeMCComponent("GGH120", "/SUSYGluGluToHToTauTau_M-120_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 ggh130 = creator.makeMCComponent("GGH130", "/SUSYGluGluToHToTauTau_M-130_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
@@ -47,7 +45,8 @@ ggh1200 = creator.makeMCComponent("GGH1200", "/SUSYGluGluToHToTauTau_M-1200_Tune
 #samples = [TT_pow, DYJetsToLL_M50, WJetsToLNu, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8]
 # samples = [HiggsGGH125, HiggsVBF125, HiggsTTH125] + SingleTop
 
-samples = [ggh160, WJetsToLNu, TT_pow, DYJetsToLL_M50, ggh120, ggh130, ggh200, ggh400, ggh600, ggh800, ggh1000, ggh1200, QCD_Mu15]
+samples = [ggh160, WJetsToLNu, TT_pow, DYJetsToLL_M50]
+samples += [ggh120, ggh130, ggh200, ggh400, ggh600, ggh800, ggh1000, ggh1200]
 
 split_factor = 1e5
 
@@ -84,18 +83,7 @@ selectedComponents = data_list
 ###################################################
 
 if pick_events:
-
-    import csv
-    fileName = 'Imperial.csv'
-    f = open(fileName, 'rb')
-    reader = csv.reader(f)
-    evtsToPick = []
-
-    for i, row in enumerate(reader):
-        evtsToPick += [int(j) for j in row]
-
-    #eventSelector.toSelect = [308041,191584,240060,73996]
-    eventSelector.toSelect = evtsToPick
+    eventSelector.toSelect = [308041,191584,240060,73996]
     sequence.insert(0, eventSelector)
 
 if not syncntuple:
@@ -118,16 +106,16 @@ if not production:
     #comp = SingleMuon_Run2015D
     #comp = ggh120
     #comp = ggh130
-    comp = ggh160
+    #comp = ggh160
     #comp = ggh200
     #comp = ggh400
     #comp = ggh600
     #comp = ggh800
     #comp = ggh1000
-    #comp = ggh1200
+    comp = ggh1200
     selectedComponents = [comp]
     comp.splitFactor = 1
-    comp.fineSplitFactor = 1
+    comp.fineSplitFactor = 2
     # comp.files = comp.files[]
 
 print sequence

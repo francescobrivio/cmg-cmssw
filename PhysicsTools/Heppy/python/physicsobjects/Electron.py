@@ -279,6 +279,24 @@ class Electron( Lepton ):
                     if   (eta < 0.8)  : return self.mvaRun2(name) > 0.87;
                     elif (eta < 1.479): return self.mvaRun2(name) > 0.60;
                     else              : return self.mvaRun2(name) > 0.17;
+                elif wp == "POG80":
+                    if self.pt() > 10.:
+                        if eta < 0.8: return self.mvaRun2(name) > 0.967083
+                        elif eta < 1.479: return self.mvaRun2(name) > 0.929117
+                        else: return self.mvaRun2(name) > 0.726311
+                    else: # pt <= 10
+                        if eta < 0.8: return self.mvaRun2(name) > 0.287435
+                        elif eta < 1.479: return self.mvaRun2(name) > 0.221846
+                        else: return self.mvaRun2(name) > -0.303263
+                elif wp == "POG90":
+                    if self.pt() > 10.:
+                        if eta < 0.8: return self.mvaRun2(name) > 0.913286
+                        elif eta < 1.479: return self.mvaRun2(name) > 0.805013
+                        else: return self.mvaRun2(name) > 0.358969
+                    else: # pt <= 10
+                        if eta < 0.8: return self.mvaRun2(name) > -0.083313
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.235222
+                        else: return self.mvaRun2(name) > -0.67099
                 else: raise RuntimeError, "Ele MVA ID Working point not found"
             else: raise RuntimeError, "Ele MVA ID type not found"
 

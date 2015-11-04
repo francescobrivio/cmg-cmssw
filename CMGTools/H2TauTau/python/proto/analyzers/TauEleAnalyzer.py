@@ -56,6 +56,7 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
             pydil.leg2().associatedVertex = event.goodVertices[0]
             pydil.leg1().associatedVertex = event.goodVertices[0]
             pydil.leg1().rho = event.rho
+            pydil.leg1().event = event
             pydil.mvaMetSig = pydil.met().getSignificanceMatrix()
             diLeptons.append(pydil)
         return diLeptons
@@ -71,6 +72,7 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
                 di_tau.leg2().associatedVertex = event.goodVertices[0]
                 di_tau.leg1().associatedVertex = event.goodVertices[0]
                 di_tau.leg1().rho = event.rho
+                di_tau.leg1().event = event
 
                 di_tau.mvaMetSig = None
                 di_leptons.append(di_tau)
@@ -85,6 +87,7 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
             pyl = self.__class__.LeptonClass(lep)
             pyl.associatedVertex = event.goodVertices[0]
             pyl.rho = event.rho
+            pyl.event = event
 
             if pyl.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) > 0.3:
                 continue
@@ -115,9 +118,6 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
         return otherLeptons
 
     def process(self, event):
-
-        #        import pdb; pdb.set_trace()
-
         # FIXME - JAN - for current 2015 sync, but shall we really discard
         # the vertex cuts?
         event.goodVertices = event.vertices
@@ -142,8 +142,6 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
 
         event.isSignal = event.isSignal and event.leptonAccept and event.thirdLeptonVeto
 
-#        import pdb; pdb.set_trace()
-
         return True
 
     def testTauVertex(self, tau):
@@ -161,8 +159,7 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
     def testLeg2ID(self, tau):
         # Don't apply anti-e discriminator for relaxed tau ID
         # RIC: 9 March 2015
-        return ((tau.tauID('decayModeFinding') > 0.5 or
-                 tau.tauID('decayModeFindingNewDMs') > 0.5) and
+        return  (tau.tauID('decayModeFindingNewDMs') > 0.5 and 
                 abs(tau.charge()) == 1 and
                 # tau.tauID('againstElectronTightMVA5')  > 0.5  and
                 # tau.tauID('againstMuonLoose3')         > 0.5  and
@@ -181,28 +178,19 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
             return tau.tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits") < isocut
 
     def testTightElectronID(self, electron):
-        mva = electron.mvaRun2('NonTrigPhys14')
-        eta = abs(electron.superCluster().eta())
-        if eta < 0.8:
-            return mva > 0.965
-        elif eta < 1.479:
-            return mva > 0.917
-        return mva > 0.683
+        '''Selection for electron from tau decay'''
+        return electron.mvaIDRun2('NonTrigSpring15', 'POG80')
 
     def testElectronID(self, electron):
-        mva = electron.mvaRun2('NonTrigPhys14')
-        eta = abs(electron.superCluster().eta())
-        if eta < 0.8:
-            return mva > 0.933
-        elif eta < 1.479:
-            return mva > 0.825
-        return mva > 0.337
+        '''Loose selection for generic electrons'''
+        return electron.mvaIDRun2('NonTrigSpring15', 'POG90')
+
+    def testVetoElectronID(self, electron):
+        return electron.cutBasedId('POG_SPRING15_25ns_v1_Veto')
 
     def testLeg1ID(self, electron):
         '''Tight electron selection, no isolation requirement.
-           Electron ID: NonTrigPhys14, Tight
         '''
-        # return electron.electronID('POG_MVA_ID_Run2_NonTrig_Tight') and \
 
         cVeto = electron.passConversionVeto()
         mHits = electron.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1
@@ -217,14 +205,13 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
     def testLooseleg1(self, leg):  # electrons
         ''' pt, eta and isolation selection for electrons
             used in the di-electron veto.
-            POG_PHYS14_25ns_v1_Veto
             pt 15, eta 2.5, dB relIso 0.3
         '''
         if (leg.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) > 0.3 or
                 abs(leg.eta()) > 2.5 or
                 leg.pt() < 15 or
-                leg.cutBasedId('POG_PHYS14_25ns_v1_Veto') == False or
-                self.testVertex(leg) == False):
+                not self.testVetoElectronID(leg) or
+                not self.testVertex(leg)):
             return False
         return True
 
@@ -320,7 +307,7 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
 
     def trigMatched(self, event, diL, requireAllMatched=False):
 
-        matched = super(TauEleAnalyzer, self).trigMatched(event, diL, requireAllMatched=requireAllMatched)
+        matched = super(TauEleAnalyzer, self).trigMatched(event, diL, requireAllMatched=requireAllMatched, ptMin=23., relaxIds=[11])
 
         if matched and len(diL.matchedPaths) == 1 and diL.leg1().pt() <= 33. and 'Ele32' in list(diL.matchedPaths)[0]:
             matched = False

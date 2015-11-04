@@ -7,8 +7,6 @@ from CMGTools.H2TauTau.proto.analyzers.H2TauTauTreeProducerMuEle import H2TauTau
 from CMGTools.H2TauTau.proto.analyzers.LeptonWeighter            import LeptonWeighter
 from CMGTools.H2TauTau.proto.analyzers.SVfitProducer              import SVfitProducer
 
-from CMGTools.H2TauTau.proto.samples.spring15.connector import httConnector
-
 # common configuration and sequence
 from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence, genAna, dyJetsFakeAna, puFileData, puFileMC, eventSelector
 
@@ -91,18 +89,11 @@ svfitProducer = cfg.Analyzer(
 ###################################################
 ### CONNECT SAMPLES TO THEIR ALIASES AND FILES  ###
 ###################################################
-from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator 
 from CMGTools.RootTools.utils.splitFactor import splitFactor
-from CMGTools.H2TauTau.proto.samples.spring15.triggers_muEle  import mc_triggers as mc_triggers_em
+from CMGTools.H2TauTau.proto.samples.spring15.triggers_muEle  import mc_triggers, mc_triggerfilters
 
 
-#my_connect = httConnector('htt_6mar15_manzoni_nom', 'htautau_group',
-#                          '.*root', 'tt', production=production)
-#my_connect.connect()
-#MC_list = my_connect.MC_list
-
-creator = ComponentCreator()
-ggh160 = creator.makeMCComponent("GGH160", "/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG160 as ggh160
 
 MC_list = [ggh160]
 
@@ -110,7 +101,8 @@ split_factor = 2e4
 
 
 for sample in MC_list:
-    sample.triggers = mc_triggers_em
+    sample.triggers = mc_triggers
+    sample.triggerobjects = mc_triggerfilters
     sample.splitFactor = splitFactor(sample, split_factor)
 
 ###################################################
@@ -143,8 +135,8 @@ if syncntuple:
 ###################################################
 ###             CHERRY PICK EVENTS              ###
 ###################################################
-eventSelector.toSelect = [133381]
-sequence.insert(0, eventSelector)
+# eventSelector.toSelect = [133381]
+# sequence.insert(0, eventSelector)
 
 ###################################################
 ###            SET BATCH OR LOCAL               ###
@@ -154,7 +146,7 @@ if not production:
 #  comp                 = my_connect.mc_dict['HiggsGGH125']
   comp = ggh160
   selectedComponents   = [comp]
-  comp.splitFactor     = 1
+  comp.splitFactor     = 4
   comp.fineSplitFactor = 1
 #  comp.files           = comp.files[:1]
 

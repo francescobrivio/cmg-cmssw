@@ -1,19 +1,18 @@
-import operator
-
-from PhysicsTools.Heppy.analyzers.core.AutoHandle       import AutoHandle
-from PhysicsTools.Heppy.physicsobjects.PhysicsObjects   import Muon, GenParticle
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Muon
 # RIC: 16/2/15 need to fix the Electron object first
 # from PhysicsTools.Heppy.physicsobjects.HTauTauElectron  import HTauTauElectron as Electron
-from PhysicsTools.Heppy.physicsobjects.Electron         import Electron
+from PhysicsTools.Heppy.physicsobjects.Electron import Electron
 
 from CMGTools.H2TauTau.proto.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
-from CMGTools.H2TauTau.proto.physicsobjects.DiObject    import MuonElectron, DirectDiTau
+from CMGTools.H2TauTau.proto.physicsobjects.DiObject import MuonElectron, DirectDiTau
 import ROOT
 
-class MuEleAnalyzer( DiLeptonAnalyzer ):
 
-    DiObjectClass    = MuonElectron
-    LeptonClass      = Electron
+class MuEleAnalyzer(DiLeptonAnalyzer):
+
+    DiObjectClass = MuonElectron
+    LeptonClass = Electron
     OtherLeptonClass = Muon
 
     def declareHandles(self):
@@ -26,25 +25,24 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
             )
         else:
             self.handles['diLeptons'] = AutoHandle(
-                'cmgMuEleCorSVFitFullSel', 
+                'cmgMuEleCorSVFitFullSel',
                 'std::vector<pat::CompositeCandidate>'
-                )
-
+            )
 
         self.handles['leptons'] = AutoHandle(
             'slimmedElectrons',
-            'std::vector<pat::Electron>'          
-            )
+            'std::vector<pat::Electron>'
+        )
 
         self.handles['otherLeptons'] = AutoHandle(
             'slimmedMuons',
-            'std::vector<pat::Muon>'              
-            )
+            'std::vector<pat::Muon>'
+        )
 
         self.mchandles['genParticles'] = AutoHandle(
             'prunedGenParticles',
-            'std::vector<reco::GenParticle>'      
-            )
+            'std::vector<reco::GenParticle>'
+        )
 
     def buildDiLeptons(self, cmgDiLeptons, event):
         '''Build di-leptons, associate best vertex to both legs,
@@ -59,11 +57,12 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
             pydil.leg2().associatedVertex = event.goodVertices[0]
 #            pydil.leg2().rho = event.rho
             pydil.leg1().rho = event.rho
+            pydil.leg1().event = event
 #            if not self.testLeg2( pydil.leg2(), 999999 ):
-            if not self.testLeg1( pydil.leg1(), 999999 ):
+            if not self.testLeg1(pydil.leg1(), 999999):
                 continue
             # pydil.mvaMetSig = pydil.met().getSignificanceMatrix()
-            diLeptons.append( pydil )
+            diLeptons.append(pydil)
             pydil.mvaMetSig = pydil.met().getSignificanceMatrix()
         return diLeptons
 
@@ -80,6 +79,7 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
                 di_tau.leg1().associatedVertex = event.goodVertices[0]
                 di_tau.leg2().associatedVertex = event.goodVertices[0]
                 di_tau.leg1().rho = event.rho
+                di_tau.leg1().event = event
 
                 if not self.testLeg1(di_tau.leg1(), 99999):
                     continue
@@ -88,45 +88,44 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
                 di_leptons.append(di_tau)
         return di_leptons
 
-
-    def buildLeptons(self, cmgLeptons, event):
+    def buildOtherLeptons(self, otherLeptons, event):
         '''Build muons for veto, associate best vertex, select loose ID muons.
         The loose ID selection is done to ensure that the muon has an inner track.'''
-        leptons = []
-        for index, lep in enumerate(cmgLeptons):
-            pyl = self.__class__.LeptonClass(lep)
+        muons = []
+        for index, lep in enumerate(otherLeptons):
+            pyl = self.__class__.OtherLeptonClass(lep)
             #pyl = Muon(lep)
             pyl.associatedVertex = event.goodVertices[0]
-            leptons.append( pyl )
-        return leptons
+            muons.append(pyl)
+        return muons
 
-    def buildOtherLeptons(self, cmgOtherLeptons, event):
+    def buildLeptons(self, leptons, event):
         '''Build electrons for third lepton veto, associate best vertex.
         '''
-        otherLeptons = []
-        for index, lep in enumerate(cmgOtherLeptons):
-            pyl = self.__class__.OtherLeptonClass(lep)
+        electrons = []
+        for index, lep in enumerate(leptons):
+            pyl = self.__class__.LeptonClass(lep)
             #import pdb ; pdb.set_trace()
             #pyl = Electron(lep)
             pyl.associatedVertex = event.goodVertices[0]
             pyl.rho = event.rho
-            otherLeptons.append( pyl )
-        return otherLeptons
+            pyl.event = event
+            electrons.append(pyl)
+        return electrons
 
     def process(self, event):
 
         event.goodVertices = event.vertices
 
-#        import pdb; pdb.set_trace()
         result = super(MuEleAnalyzer, self).process(event)
 
         if result is False:
             # trying to get a dilepton from the control region.
             # it must have well id'ed and trig matched legs,
             # di-lepton and tri-lepton veto must pass
-            result = self.selectionSequence(event, fillCounter = False,
-                                            leg1IsoCut = self.cfg_ana.looseiso1,
-                                            leg2IsoCut = self.cfg_ana.looseiso2)
+            result = self.selectionSequence(event, fillCounter=False,
+                                            leg1IsoCut=self.cfg_ana.looseiso1,
+                                            leg2IsoCut=self.cfg_ana.looseiso2)
             if result is False:
                 # really no way to find a suitable di-lepton,
                 # even in the control region
@@ -146,11 +145,11 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
         if isocut is None:
             isocut = self.cfg_ana.iso2
 
-        return muon.relIso(dBetaFactor=0.5, allCharged=0)<isocut
+        return muon.relIso(dBetaFactor=0.5, allCharged=0) < isocut
 
     def testVertex(self, lepton):
         '''Tests vertex constraints, for mu and electron'''
-        return abs(lepton.dxy()) < 0.045 and abs(lepton.dz ()) < 0.2
+        return abs(lepton.dxy()) < 0.045 and abs(lepton.dz()) < 0.2
 
     def testLeg1ID(self, electron):
         '''Electron ID. To be implemented'''
@@ -160,64 +159,85 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
 
         return self.testElectronID(electron) and self.testVertex(electron) and (cVeto and mHits)
 
-#    electron.electronID('POG_MVA_ID_Run2_NonTrig_Tight') and \
-
-
     def testLeg1Iso(self, electron, isocut):
-        '''Electron Isolation. Relative isolation
-           dB corrected factor 0.5
-           all charged aprticles
+        '''Electron Isolation. Relative isolation, dB correction factor 0.5
         '''
         if isocut is None:
             isocut = self.cfg_ana.iso2
         return electron.relIso(dBetaFactor=0.5, allCharged=0) < isocut
 
-    def thirdLeptonVeto(self, leptons, otherLeptons, ptcut = 10, isocut = 0.3) :
-        '''The tri-lepton veto. To be implemented'''
-
-        # count electrons (leg 2)
+    def otherLeptonVeto(self, leptons, otherLeptons, isocut=None):
+        '''Second electron veto '''
         vOtherLeptons = [electron for electron in leptons if
                          self.testLegKine(electron, ptcut=10, etacut=2.5) and
                          self.testVertex(electron) and
-                         electron.cutBasedId('POG_PHYS14_25ns_v1_Veto') and
-                         electron.relIso(dBetaFactor=0.5, allCharged=0) < 0.3]
+                         electron.mvaIDRun2('NonTrigSpring15', 'POG90') and
+                         electron.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) < 0.3]
 
+        if len(vOtherLeptons) > 1:
+            return False
+
+        return True
+
+    def thirdLeptonVeto(self, leptons, otherLeptons, isocut=None):
+        '''Second muon veto'''
         # count tight muons
         vLeptons = [muon for muon in otherLeptons if
                     muon.muonID('POG_ID_Medium') and
                     self.testVertex(muon) and
                     self.testLegKine(muon, ptcut=10, etacut=2.4) and
-                    muon.relIso(dBetaFactor=0.5, allCharged=0) < 0.3]
+                    muon.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=False) < 0.3]
 
-        if len(vLeptons) + len(vOtherLeptons) > 1:
+        if len(vLeptons) > 1:
             return False
 
         return True
 
     def testElectronID(self, electron):
-        mva = electron.mvaRun2('NonTrigPhys14')
-        eta = abs(electron.superCluster().eta())
-
-        if eta < 0.8:
-            return mva > 0.965
-        elif eta < 1.479:
-            return mva > 0.917
-        return mva > 0.683
-
+        return electron.mvaIDRun2('NonTrigSpring15', 'POG80')
 
     def leptonAccept(self, leptons, event):
-        '''The di-lepton veto, returns false if > one lepton.
-        e.g. > 1 mu in the mu tau channel.
-        To be implemented.'''
+        '''Loose e/mu veto to reject DY; passes for e-mu'''
         return True
 
     def bestDiLepton(self, diLeptons):
-        '''Returns the best diLepton (1st precedence opposite-sign,
-        2nd precedence highest pt1 + pt2).'''
-        osDiLeptons = [dl for dl in diLeptons if dl.leg1().charge() != dl.leg2().charge()]
-        if osDiLeptons : return max( osDiLeptons, key=operator.methodcaller( 'sumPt' ) )
-        else           : return max(   diLeptons, key=operator.methodcaller( 'sumPt' ) )
+        '''Returns the best diLepton (1st precedence opposite-sign, 2nd precedence
+        highest pt1 + pt2).'''
 
+        if len(diLeptons) == 1:
+            return diLeptons[0]
+
+        minRelIso = min(d.leg2().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) for d in diLeptons)
+
+        diLeps = [dil for dil in diLeptons if dil.leg2().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) == minRelIso]
+
+        if len(diLeps) == 1:
+            return diLeps[0]
+
+        maxPt = max(d.leg2().pt() for d in diLeps)
+
+        diLeps = [dil for dil in diLeps if dil.leg2().pt() == maxPt]
+
+        if len(diLeps) == 1:
+            return diLeps[0]
+
+        minIso = min(d.leg1().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) for d in diLeps)
+
+        diLeps = [dil for dil in diLeps if dil.leg1().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) == minIso]
+
+        if len(diLeps) == 1:
+            return diLeps[0]
+
+        maxPt = max(d.leg1().pt() for d in diLeps)
+
+        diLeps = [dil for dil in diLeps if dil.leg1().pt() == maxPt]
+
+        if len(diLeps) != 1:
+            print 'ERROR in finding best dilepton', diLeps
+            import pdb
+            pdb.set_trace()
+
+        return diLeps[0]
 
     def trigMatched(self, event, diL, requireAllMatched=False):
         '''Check that at least one trigger object per pgdId from a given trigger 
@@ -230,7 +250,6 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
         for info in event.trigger_infos:
             if not info.fired:
                 continue
-
 
             if self.cfg_ana.verbose:
                 print '[DBG] HLT_path = ', info.name
@@ -257,7 +276,6 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
                     for ipath in to.filterLabels():
                         print '[DBG] \t\t filter name = ', ipath
 
-
                 if self.trigObjMatched(to, legs):
                     matchedIds.add(abs(to.pdgId()))
                 else:
@@ -269,21 +287,16 @@ class MuEleAnalyzer( DiLeptonAnalyzer ):
                 else:
                     matched = True
                     event.matchedPaths.add(info.name)
-        
-        Mu23_flag = any([mp.find('Mu23')!=-1 for mp in event.matchedPaths])
-        Ele23_flag = any([mp.find('Ele23')!=-1 for mp in event.matchedPaths])
 
-#        print event.matchedPaths, diL.leg1().pt(), diL.leg2().pt(), Mu23_flag, Ele23_flag, matched
+        Mu23_flag = any([mp.find('Mu23') != -1 for mp in event.matchedPaths])
+        Ele23_flag = any([mp.find('Ele23') != -1 for mp in event.matchedPaths])
 
-        if all([Mu23_flag, Ele23_flag]): 
-#            print '--> all', matched and (diL.leg1().pt() > 24 or diL.leg2().pt() > 24)
+        if all([Mu23_flag, Ele23_flag]):
             return matched and (diL.leg1().pt() > 24 or diL.leg2().pt() > 24)
         elif Ele23_flag and not Mu23_flag:
-#            print '--> e-only', matched and diL.leg1().pt() > 24
             return matched and diL.leg1().pt() > 24
         elif Mu23_flag and not Ele23_flag:
-#            print '--> mu-only', matched and diL.leg2().pt() > 24
             return matched and diL.leg2().pt() > 24
         else:
-            print 'This maens, no trigger fired'
+            print 'Found no trigger match'
             return matched

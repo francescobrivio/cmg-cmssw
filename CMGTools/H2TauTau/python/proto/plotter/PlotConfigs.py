@@ -4,8 +4,9 @@ class VariableCfg(object):
     "binning" is a dict with either nbinsx, xmin, xmax for equidistant binning
     or nbinsx, bins=array([...]).
     '''
-    def __init__(self, name='m_svfit', binning=None, xtitle=None, unit=None):
+    def __init__(self, name='m_svfit', binning=None, xtitle=None, unit=None, drawname=None):
         self.name = name
+        self.drawname = name if drawname is None else drawname
         self.binning = {'nbinsx':10, 'xmin':0., 'xmax':200.} if binning is None else binning
         self.unit = unit
         self.xtitle = name if xtitle is None else xtitle

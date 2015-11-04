@@ -2,7 +2,7 @@ import ROOT
 
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from PhysicsTools.HeppyCore.utils.deltar import bestMatch
+from PhysicsTools.HeppyCore.utils.deltar import bestMatch, deltaR2
 
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import PhysicsObject
 
@@ -92,6 +92,9 @@ class DYJetsFakeAnalyzer(Analyzer):
         self.genMatch(event, self.l1, self.ptSelGentauleps, self.ptSelGenleps, self.ptSelGenSummary)
         self.genMatch(event, self.l2, self.ptSelGentauleps, self.ptSelGenleps, self.ptSelGenSummary)
 
+        self.attachGenStatusFlag(self.l1)
+        self.attachGenStatusFlag(self.l2)
+
         if 'Higgs' in self.cfg_comp.name:
             theZs = [bos for bos in event.generatorSummary if abs(bos.pdgId()) in (25, 35, 36, 37)]
         elif 'DY' in self.cfg_comp.name:
@@ -134,6 +137,33 @@ class DYJetsFakeAnalyzer(Analyzer):
         if self.cfg_ana.channel == 'em':
             self.isFakeEMu(event)
 
+    def attachGenStatusFlag(self, lepton):        
+        flag = 6
+
+        gen_p = lepton.genp if hasattr(lepton, 'genp') else None
+        # Check if we matched a generator particle and it's not a gen jet
+        if gen_p and not hasattr(gen_p, 'detFlavour'):
+            pdg_id = abs(gen_p.pdgId())
+            if pdg_id == 15:
+                if hasattr(lepton, 'genJet') and lepton.genJet():
+                    if lepton.genJet().pt() > 15.:
+                        flag = 5
+            elif gen_p.pt() > 8.:
+                if pdg_id == 11:
+                    flag = 1
+                elif pdg_id == 13:
+                    flag = 2
+                # else:
+                #     print 'Matched gen p with weird pdg ID', pdg_id
+
+                if flag in [1, 2]:
+                    if gen_p.statusFlags().isDirectPromptTauDecayProduct():
+                        flag += 2
+                    elif not gen_p.statusFlags().isPrompt():
+                        flag = 6
+
+        lepton.gen_match = flag
+
     @staticmethod
     def genMatch(event, leg, ptSelGentauleps, ptSelGenleps, ptSelGenSummary, 
                  dR=0.3, matchAll=True):
@@ -145,32 +175,49 @@ class DYJetsFakeAnalyzer(Analyzer):
         leg.isPromptLep = False
         leg.genp = None
 
-        # match the tau_h leg
-        # to generated had taus
-        l1match, dR2best = bestMatch(leg, event.gentaus)
-        if dR2best < dR2:
-            leg.genp = l1match
-            leg.isTauHad = True
-            return
+        best_dr2 = dR2
+        if hasattr(leg, 'genJet') and leg.genJet():
+            if leg.genJet().pt() > 15.:
+                dr2 = deltaR2(leg.eta(), leg.phi(), leg.genJet().eta(), leg.genJet().phi())
+                if dr2 < best_dr2:
+                    best_dr2 = dr2
+                    leg.genp = leg.genJet()
+                    leg.genp.setPdgId(-15 * leg.genp.charge())
+                    leg.isTauHad = True
+
+
+        # # match the tau_h leg
+        # # to generated had taus
+        # l1match, dR2best = bestMatch(leg, event.gentaus)
+        # if dR2best < best_dr2:
+        #     leg.genp = l1match
+        #     leg.isTauHad = True
+        #     return
 
         # to generated leptons from taus
         l1match, dR2best = bestMatch(leg, ptSelGentauleps)
-        if dR2best < dR2:
+        if dR2best < best_dr2:
+            best_dr2 = dR2best
             leg.genp = l1match
             leg.isTauLep = True
-            return
+            leg.isTauHad = False
 
         # to generated prompt leptons
         l1match, dR2best = bestMatch(leg, ptSelGenleps)
-        if dR2best < dR2:
+        if dR2best < best_dr2:
+            best_dr2 = dR2best
             leg.genp = l1match
             leg.isPromptLep = True
+            leg.isTauLep = False
+            leg.isTauHad = False
+
+        if best_dr2 < dR2:
             return
 
         # match with any other relevant gen particle
         if matchAll:
             l1match, dR2best = bestMatch(leg, ptSelGenSummary)
-            if dR2best < dR2:
+            if dR2best < best_dr2:
                 leg.genp = l1match
                 return
 
@@ -188,7 +235,7 @@ class DYJetsFakeAnalyzer(Analyzer):
 
             
             l1match, dR2best = bestMatch(leg, event.pythiaQuarksGluons)
-            if dR2best < dR2:
+            if dR2best < best_dr2:
                 leg.genp = l1match
                 return
 

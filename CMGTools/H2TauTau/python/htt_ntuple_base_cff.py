@@ -65,6 +65,7 @@ dyJetsFakeAna = cfg.Analyzer(
     DYJetsFakeAnalyzer,
     name='DYJetsFakeAnalyzer',
     channel='',
+    genPtCut=8.
 )
 
 jetAna = cfg.Analyzer(
@@ -113,7 +114,7 @@ higgsWeighter = cfg.Analyzer(
 ###                  SEQUENCE                   ###
 ###################################################
 commonSequence = cfg.Sequence([
-    # jsonAna,
+    jsonAna,
     skimAna,
     triggerAna,
     vertexAna,

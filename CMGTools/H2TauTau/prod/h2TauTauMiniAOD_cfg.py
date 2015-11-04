@@ -22,7 +22,7 @@ channel = 'tau-mu'
 
 # runSVFit enables the svfit mass reconstruction used for the H->tau tau analysis.
 # if false, no mass calculation is carried out
-runSVFit = False
+runSVFit = True
 
 # increase to 1000 before running on the batch, to reduce size of log files
 # on your account
@@ -38,11 +38,11 @@ print 'runSVFit', runSVFit
 # dataset_name = '/VBF_HToTauTau_M-125_13TeV-powheg-pythia6/Spring14dr-PU20bx25_POSTLS170_V5-v1/AODSIM/SS14/'
 # dataset_files = 'miniAOD-prod_PAT_.*root'
 
-local_run = False
+local_run = True
 if local_run:
 
     dataset_user = 'CMS'
-    dataset_name = '/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v3/MINIAODSIM'
+    dataset_name = '/GluGluHToTauTau_M125_13TeV_powheg_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM'
 
     dataset_files = '.*root'
 
@@ -53,11 +53,18 @@ if local_run:
     )
 
 else:
+    # process.source = cms.Source(
+    #     "PoolSource",
+    #     noEventSort = cms.untracked.bool(True),
+    #     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
+    #     fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/miniAODSIM/Asympt25ns_MCRUN2_74_V9-v3/10000/8CF409BF-6A14-E511-A190-0025905964C2.root')
+    # )
+    from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D_Promptv4
     process.source = cms.Source(
         "PoolSource",
         noEventSort = cms.untracked.bool(True),
         duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-        fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v3/10000/8CF409BF-6A14-E511-A190-0025905964C2.root')
+        fileNames = cms.untracked.vstring(SingleMuon_Run2015D_Promptv4.files)
     )
 
 
@@ -95,11 +102,11 @@ process.load('CMGTools.H2TauTau.h2TauTau_cff')
 
 isEmbedded = setupEmbedding(process, channel)
 addAK4 = True
-addPuppi = True
+addPuppi = False
 
 # Adding jet collection
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2'
 # process.GlobalTag.globaltag = 'auto:run2_mc'
 
 
@@ -135,14 +142,15 @@ if addPuppi:
         process.pfMetPuppi
     )
 
-# if '25' in dataset_name:
-#     print 'Using 25 ns MVA MET training'
-#     process.mvaMETTauMu.iinputFileNames = cms.PSet(
-#         U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
-#         DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
-#         CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
-#         CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root')
-#     )
+if '25ns' in process.source.fileNames[0] or 'mcRun2_asymptotic_v2' in process.source.fileNames[0]:
+    print 'Using 25 ns MVA MET training'
+    for mvaMETCfg in [process.mvaMETTauMu, process.mvaMETTauEle, process.mvaMETDiMu, process.mvaMETDiTau, process.mvaMETMuEle]:
+        mvaMETCfg.inputFileNames = cms.PSet(
+        U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru_7_4_X_miniAOD_25NS_July2015.root'),
+        DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7_4_X_miniAOD_25NS_July2015.root'),
+        CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_4_X_miniAOD_25NS_July2015.root'),
+        CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_4_X_miniAOD_25NS_July2015.root')
+    )
 #     # process.mvaMETTauMu.inputRecords = cms.PSet(
 #     #     U = cms.string("U1Correction"),
 #     #     DPhi = cms.string("PhiCorrection"),
