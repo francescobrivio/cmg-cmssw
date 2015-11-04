@@ -42,16 +42,15 @@ class TriggerAnalyzer(Analyzer):
         super(TriggerAnalyzer,self).beginLoop(setup)
 
         self.triggerList = self.cfg_comp.triggers
-<<<<<<< HEAD
-        if hasattr(self.cfg_ana, 'extraTrig'):
+
+        '''if hasattr(self.cfg_ana, 'extraTrig'):
             self.extraTrig = self.cfg_ana.extraTrig
         else:
-            self.extraTrig = []
-=======
+            self.extraTrig = []'''
+
         self.triggerObjects = []
         if hasattr(self.cfg_comp, 'triggerobjects'):
             self.triggerObjects = self.cfg_comp.triggerobjects
->>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
 
         self.vetoTriggerList = None
 
@@ -97,12 +96,11 @@ class TriggerAnalyzer(Analyzer):
             trigger_infos.append(TriggerInfo(trigger_name, index, fired, prescale))
 
             if fired and (prescale == 1 or self.cfg_ana.usePrescaled):
-<<<<<<< HEAD
-                if trigger_name in self.triggerList:
-                    trigger_passed = True
-                triggers_fired.append(trigger_name)
 
-=======
+                '''if trigger_name in self.triggerList:
+                    trigger_passed = True
+                triggers_fired.append(trigger_name)'''
+
                 trigger_passed = True
                 self.counters.counter('Trigger').inc(trigger_name)            
             elif fired:
@@ -113,7 +111,6 @@ class TriggerAnalyzer(Analyzer):
         if self.cfg_ana.requireTrigger:
             if not trigger_passed:
                 return False
->>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
 
         if self.cfg_ana.addTriggerObjects:
             triggerObjects = self.handles['triggerObjects'].product()
@@ -130,8 +127,7 @@ class TriggerAnalyzer(Analyzer):
 
         event.trigger_infos = trigger_infos
 
-<<<<<<< HEAD
-        if self.cfg_ana.requireTrigger:
+        '''if self.cfg_ana.requireTrigger:
             if not trigger_passed:
                 return False
 
@@ -142,11 +138,8 @@ class TriggerAnalyzer(Analyzer):
                 for trig in self.triggerList:
                     setattr(event, 'tag', (trig in triggers_fired))                
                 for trig in self.extraTrig:
-                    setattr(event, 'probe', (trig in triggers_fired))
+                    setattr(event, 'probe', (trig in triggers_fired))'''
 
-=======
-            
->>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
         self.counters.counter('Trigger').inc('HLT')
         return True
 

@@ -1,11 +1,7 @@
 # Spring 15 and 2015 data, miniAOD v2
 
 data_triggers = [
-<<<<<<< HEAD
     #'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2',
-    #'HLT_IsoMu22_v1',
-    'HLT_IsoMu18_v', 
-=======
     # 'HLT_IsoMu17_eta2p1_v4',
     # 'HLT_IsoMu17_eta2p1_v3',
     # 'HLT_IsoMu17_eta2p1_v2',
@@ -16,7 +12,6 @@ data_triggers = [
     'HLT_IsoMu18_v1',
     # 'HLT_IsoMu17_eta2p1',
     # 'HLT_IsoMu18'
->>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
     ]
 
 data_triggerfilters = [
@@ -24,18 +19,10 @@ data_triggerfilters = [
 ]
 
 mc_triggers = [
-<<<<<<< HEAD
     #'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1', 
     #'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2', 
     'HLT_IsoMu24_eta2p1_v1',
-    'HLT_IsoMu24_eta2p1_v2'
-=======
-    # 'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1', 
-    # 'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2', 
-    'HLT_IsoMu17_eta2p1_v1',
-    # 'HLT_IsoMu24_eta2p1_v1',
-    # 'HLT_IsoMu24_eta2p1_v2'
->>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
+    #'HLT_IsoMu24_eta2p1_v2'
     ]
 
 mc_triggerfilters = [

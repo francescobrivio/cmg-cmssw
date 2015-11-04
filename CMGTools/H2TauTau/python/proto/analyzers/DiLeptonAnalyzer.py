@@ -321,7 +321,6 @@ class DiLeptonAnalyzer(Analyzer):
         to.matched = False
         for leg in legs:
             # JAN - Single-ele trigger filter has pdg ID 0, to be understood
-<<<<<<< HEAD
             # RIC - same seems to happen with di-tau and mu + tau monitoring 
             if pdgId == abs(leg.pdgId()) or \
                (pdgId == 0 and abs(leg.pdgId()) == 11) or \
@@ -341,8 +340,10 @@ class DiLeptonAnalyzer(Analyzer):
         print 'to.pt:         ', to.pt()
         print 'to.matched:    ', to.matched
         print '-----------------------------' '''
-=======
-            # RIC - same seems to happen with di-tau
+
+
+
+        '''    # RIC - same seems to happen with di-tau
             # JAN - If it's two triggers, there's a logical flaw in the e-tau
             # channel, so maybe we'll have to move to explicit but not very
             # general requirements (for now added option to relax explicitly)
@@ -354,8 +355,7 @@ class DiLeptonAnalyzer(Analyzer):
                         if to not in leg.triggerobjects:
                             leg.triggerobjects.append(to)
                     else:
-                        leg.triggerobjects = [to]
+                        leg.triggerobjects = [to] '''
 
->>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
 
         return to.matched

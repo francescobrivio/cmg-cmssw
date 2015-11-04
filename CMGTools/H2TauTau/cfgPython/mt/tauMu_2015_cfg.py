@@ -8,11 +8,12 @@ from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 from CMGTools.RootTools.utils.splitFactor import splitFactor
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 #from CMGTools.RootTools.samples.samples_13TeV_74X import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, SingleTop
-from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import WJetsToLNu, TT_pow, DYJetsToLL_M50
+#from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import WJetsToLNu, TT_pow, DYJetsToLL_M50
+from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2_fra import WJetsToLNu, TT_pow, DYJetsToLL_M50
 #from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015B_17Jul, SingleMuon_Run2015B
 from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D
-from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import mc_triggers as mc_triggers_mt
-from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import data_triggers as data_triggers_mt
+from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import mc_triggers as mc_triggers_mt, mc_triggerfilters
+from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import data_triggers as data_triggers_mt, data_triggerfilters
 from CMGTools.H2TauTau.proto.samples.spring15.higgs import HiggsGGH125, HiggsVBF125, HiggsTTH125
 
 from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC, eventSelector
@@ -40,7 +41,6 @@ ggh800 = creator.makeMCComponent("GGH800", "/SUSYGluGluToHToTauTau_M-800_TuneCUE
 ggh1000 = creator.makeMCComponent("GGH1000", "/SUSYGluGluToHToTauTau_M-1000_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 ggh1200 = creator.makeMCComponent("GGH1200", "/SUSYGluGluToHToTauTau_M-1200_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 
-
 #samples = [qcd_flat, TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf]
 #samples = [TT_pow, DYJetsToLL_M50, WJetsToLNu, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8]
 # samples = [HiggsGGH125, HiggsVBF125, HiggsTTH125] + SingleTop
@@ -52,6 +52,7 @@ split_factor = 1e5
 
 for sample in samples:
     sample.triggers = mc_triggers_mt
+    sample.triggerobjects = mc_triggerfilters
     sample.splitFactor = splitFactor(sample, split_factor)
 
 #data_list = [SingleMuon_Run2015B_17Jul, SingleMuon_Run2015B]
@@ -59,9 +60,33 @@ data_list = [SingleMuon_Run2015D]
 
 for sample in data_list:
     sample.triggers = data_triggers_mt
+    sample.triggerobjects = data_triggerfilters
     sample.splitFactor = splitFactor(sample, split_factor)
     sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt'
     sample.lumi = 40.03
+
+
+###################################################
+###                  SEQUENCE                   ###
+###################################################
+'''# Define extra modules
+tauIsoCalc = cfg.Analyzer(
+    TauIsolationCalculator,
+    name='TauIsolationCalculator',
+    getter=lambda event: [event.leg2]
+)
+
+muonIsoCalc = cfg.Analyzer(
+    MuonIsolationCalculator,
+    name='MuonIsolationCalculator',
+    getter=lambda event: [event.leg1]
+)
+
+sequence.insert(sequence.index(treeProducer), muonIsoCalc)
+sequence.insert(sequence.index(treeProducer), tauIsoCalc)
+
+treeProducer.addIsoInfo = True'''
+
 
 ###################################################
 ###              ASSIGN PU to MC                ###
@@ -83,8 +108,20 @@ selectedComponents = data_list
 ###################################################
 
 if pick_events:
-    eventSelector.toSelect = [308041,191584,240060,73996]
+
+    import csv
+    fileName = 'Imperial.csv'
+    f = open(fileName, 'rb')
+    reader = csv.reader(f)
+    evtsToPick = []
+
+    for i, row in enumerate(reader):
+        evtsToPick += [int(j) for j in row]
+
+    #eventSelector.toSelect = [308041,191584,240060,73996]
+    eventSelector.toSelect = evtsToPick
     sequence.insert(0, eventSelector)
+
 
 if not syncntuple:
     module = [s for s in sequence if s.name == 'H2TauTauSyncTreeProducerTauMu'][0]
@@ -106,16 +143,16 @@ if not production:
     #comp = SingleMuon_Run2015D
     #comp = ggh120
     #comp = ggh130
-    #comp = ggh160
+    comp = ggh160
     #comp = ggh200
     #comp = ggh400
     #comp = ggh600
     #comp = ggh800
     #comp = ggh1000
-    comp = ggh1200
+    #comp = ggh1200
     selectedComponents = [comp]
     comp.splitFactor = 1
-    comp.fineSplitFactor = 2
+    comp.fineSplitFactor = 4
     # comp.files = comp.files[]
 
 print sequence

@@ -105,11 +105,7 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
             pyl = self.__class__.OtherLeptonClass(lep)
             pyl.associatedVertex = event.goodVertices[0]
             pyl.rho = event.rho
-<<<<<<< HEAD
             pyl.event = event     # FRANCESCO - added the whole event to the lepton (electron)
-=======
-            pyl.event = event
->>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
             otherLeptons.append(pyl)
         return otherLeptons
 
@@ -195,8 +191,8 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
 
 
     def testElectronID(self, electron):
-<<<<<<< HEAD
-	#import pdb; pdb.set_trace()
+
+	'''#import pdb; pdb.set_trace()
         mva = electron.mvaRun2('NonTrigPhys14')
         #mva = electron.mvaRun2('NonTrigSpring15')
         eta = abs(electron.superCluster().eta())
@@ -204,10 +200,9 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
             return mva > 0.933
         elif eta < 1.479:
             return mva > 0.825
-        return mva > 0.337
-=======
-        return electron.mvaIDRun2('NonTrigSpring15', 'POG90')
->>>>>>> jan/CMGTools-from-CMSSW_7_4_12_7415_H2Tau
+        return mva > 0.337 '''
+
+        return electron.mvaIDRun2('NonTrigSpring15', 'POG90') # from jan 7_4_12_7415_H2Tau on 4/11/2015
 
     def otherLeptonVeto(self, leptons, otherLeptons, isoCut=0.3):
         # count electrons
