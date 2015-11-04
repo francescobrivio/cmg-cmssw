@@ -286,13 +286,13 @@ class DiLeptonAnalyzer(Analyzer):
         sameFlavour = (abs(legs[0].pdgId()) == abs(legs[1].pdgId()))
 
         for info in event.trigger_infos:
-            
+
             if not info.fired:
                 continue
 
             matchedIds = []
             allMatched = True
-            
+
             for to in info.objects:
                 if self.trigObjMatched(to, legs):
                     matchedIds.append(abs(to.pdgId()))
@@ -312,6 +312,7 @@ class DiLeptonAnalyzer(Analyzer):
     def trigObjMatched(self, to, legs, dR2Max=0.25):  # dR2Max=0.089999
         '''Returns true if the trigger object is matched to one of the given
         legs'''
+
         eta = to.eta()
         phi = to.phi()
         pdgId = abs(to.pdgId())
@@ -322,7 +323,20 @@ class DiLeptonAnalyzer(Analyzer):
             if pdgId == abs(leg.pdgId()) or \
                (pdgId == 0 and abs(leg.pdgId()) == 11) or \
                (pdgId == 0 and abs(leg.pdgId()) == 15):
-                if deltaR2(eta, phi, leg.eta(), leg.phi()) < dR2Max:
-                    to.matched = True                  
+                if deltaR2(eta, phi, leg.eta(), leg.phi()) < dR2Max and to.pt() > 18.:
+                    to.matched = True
+
+        '''print '---------- Event -----------'
+        print 'dR2Max:        ', dR2Max
+        print 'pdgId:         ', pdgId
+        print 'pdgId_0:       ', legs[0].pdgId()
+        print 'deltaR2_0:     ', deltaR2(eta, phi, legs[0].eta(), legs[0].phi())
+        print 'deltaR cond_0: ', deltaR2(eta, phi, legs[0].eta(), legs[0].phi()) < dR2Max and to.pt() > 18.
+        print 'pdgId_1:       ', legs[1].pdgId()
+        print 'deltaR2_1:     ', deltaR2(eta, phi, legs[1].eta(), legs[1].phi())
+        print 'deltaR cond_1: ', deltaR2(eta, phi, legs[1].eta(), legs[1].phi()) < dR2Max and to.pt() > 18.
+        print 'to.pt:         ', to.pt()
+        print 'to.matched:    ', to.matched
+        print '-----------------------------' '''
 
         return to.matched

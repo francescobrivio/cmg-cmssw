@@ -8,7 +8,7 @@ from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 from CMGTools.RootTools.utils.splitFactor import splitFactor
 from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 #from CMGTools.RootTools.samples.samples_13TeV_74X import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, SingleTop
-from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import WJetsToLNu, TT_pow, DYJetsToLL_M50
+from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2_fra import WJetsToLNu, TT_pow, DYJetsToLL_M50
 #from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015B_17Jul, SingleMuon_Run2015B
 from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import mc_triggers as mc_triggers_mt
@@ -22,7 +22,7 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC, eventSel
 # production = True run on batch, production = False (or unset) run locally
 production = getHeppyOption('production')
 production = False
-pick_events = False
+pick_events = True
 syncntuple = True
 
 creator = ComponentCreator()
@@ -84,7 +84,18 @@ selectedComponents = data_list
 ###################################################
 
 if pick_events:
-    eventSelector.toSelect = [308041,191584,240060,73996]
+
+    import csv
+    fileName = 'Imperial.csv'
+    f = open(fileName, 'rb')
+    reader = csv.reader(f)
+    evtsToPick = []
+
+    for i, row in enumerate(reader):
+        evtsToPick += [int(j) for j in row]
+
+    #eventSelector.toSelect = [308041,191584,240060,73996]
+    eventSelector.toSelect = evtsToPick
     sequence.insert(0, eventSelector)
 
 if not syncntuple:
@@ -100,14 +111,14 @@ if not production:
     #selectedComponents = [comp]
     #comp = selectedComponents[0]
     #comp = data_list[0]
-    comp = QCD_Mu15
+    #comp = QCD_Mu15
     #comp = DYJetsToLL_M50
     #comp = WJetsToLNu
     #comp = TT_pow
     #comp = SingleMuon_Run2015D
     #comp = ggh120
     #comp = ggh130
-    #comp = ggh160
+    comp = ggh160
     #comp = ggh200
     #comp = ggh400
     #comp = ggh600
@@ -116,7 +127,7 @@ if not production:
     #comp = ggh1200
     selectedComponents = [comp]
     comp.splitFactor = 1
-    comp.fineSplitFactor = 4
+    comp.fineSplitFactor = 1
     # comp.files = comp.files[]
 
 print sequence
