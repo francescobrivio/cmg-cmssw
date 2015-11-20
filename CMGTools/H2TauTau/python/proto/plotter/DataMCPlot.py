@@ -9,6 +9,7 @@ from CMGTools.RootTools.DataMC.Stack import Stack
 
 from CMGTools.H2TauTau.proto.plotter.H2TauStyle import histPref, Style
 
+
 def ymax(hists):
     def getmax(h):
         hw = h.weighted
@@ -49,7 +50,14 @@ class DataMCPlot(object):
         self.axisWasSet = False
         self.histPref = histPref
 
+    def __contains__(self, name):
+        return name in self.histosDict
+
+    def __getitem__(self, name):
+        return self.histosDict[name]
+
     def readTree(self, file_name, tree_name='tree'):
+        '''Cache files/trees'''
         if file_name in self.__class__._t_keeper:
             ttree = self.__class__._t_keeper[file_name]
         else:
@@ -149,7 +157,7 @@ class DataMCPlot(object):
         return byLayerOn
 
     def Hist(self, histName):
-        '''Returns an histogram.
+        '''Returns a histogram.
 
         Print the DataMCPlot object to see which histograms are available.'''
         return self.histosDict[histName]
@@ -185,7 +193,7 @@ class DataMCPlot(object):
         # self.lastDraw = 'Draw'
         # self.lastDrawArgs = [ opt ]
 
-    def CreateLegend(self, ratio=False):
+    def CreateLegend(self, ratio=False, print_norm=False):
         if self.legend is None:
             self.legend = TLegend(*self.legendBorders)
             self.legend.SetFillColor(0)
@@ -197,12 +205,16 @@ class DataMCPlot(object):
         if ratio:
             hists = hists[:-1]  # removing the last histo.
         for index, hist in enumerate(hists):
+            if print_norm:
+                if not hist.legendLine:
+                    hist.legendLine = hist.name
+                hist.legendLine += ' ({norm:.1f})'.format(norm=hist.Yield())
             hist.AddEntry(self.legend)
 
-    def DrawLegend(self, ratio=False):
+    def DrawLegend(self, ratio=False, print_norm=False):
         '''Draw the legend.'''
         if self.legendOn:
-            self.CreateLegend(ratio)
+            self.CreateLegend(ratio=ratio, print_norm=print_norm)
             self.legend.Draw('same')
 
     def DrawRatio(self, opt=''):
@@ -342,8 +354,14 @@ class DataMCPlot(object):
         line.DrawLine(xmin, y0+frac, xmax, y0+frac)
         line.DrawLine(xmin, y0-frac, xmax, y0-frac)
 
+    def GetStack(self):
+        '''Returns stack; builds stack if not there yet'''
+        if not self.stack:
+            self._BuildStack(self._SortedHistograms(), ytitle='Events')
+        return self.stack
+
     def DrawStack(self, opt='',
-                  xmin=None, xmax=None, ymin=None, ymax=None):
+                  xmin=None, xmax=None, ymin=None, ymax=None, print_norm=False):
         '''Draw all histograms, some of them in a stack.
 
         if Histogram.stack is True, the histogram is put in the stack.'''
@@ -384,7 +402,7 @@ class DataMCPlot(object):
             self.legendBorders = 0.62, 0.46, 0.88, 0.89
             self.legendPos = 'right'
 
-        self.DrawLegend()
+        self.DrawLegend(print_norm=print_norm)
         if TPad.Pad():
             TPad.Pad().Update()
 
@@ -420,6 +438,22 @@ class DataMCPlot(object):
         for hist in self.histos:
             hist.NormalizeToBinWidth()
 
+    def WriteDataCard(self, filename=None, verbose=True, 
+                      mode='RECREATE', dir=None):
+        '''Export current plot to datacard'''
+        if not filename:
+            filename = self.name+'.root'
+
+        outf = TFile(filename, mode)
+        if dir:
+            outf_dir = outf.mkdir(dir)
+            outf_dir.cd()
+
+        for hist in self._SortedHistograms():
+            'Writing', hist, 'as', hist.name
+            hist.weighted.Write(hist.name)
+        outf.Write()
+
     def _BuildStack(self, hists, ytitle=None):
         '''build a stack from a list of Histograms.
 
@@ -437,13 +471,13 @@ class DataMCPlot(object):
         '''Return the preference dictionary for a given component'''
         thePref = None
         for prefpat, pref in self.histPref.iteritems():
-            if fnmatch.fnmatch( name, prefpat):
+            if fnmatch.fnmatch(name, prefpat):
                 if thePref is not None:
-                    print 'several matching preferences for', name 
+                    print 'several matching preferences for', name
                 thePref = pref
         if thePref is None:
-            print 'cannot find preference for hist',name
-            thePref = {'style':Style(), 'layer':999}
+            print 'cannot find preference for hist', name
+            thePref = {'style': Style(), 'layer': 999}
         return thePref
 
     def _ApplyPrefs(self):
@@ -465,5 +499,4 @@ class DataMCPlot(object):
 
 
 if __name__ == '__main__':
-
     plot = DataMCPlot('plot')

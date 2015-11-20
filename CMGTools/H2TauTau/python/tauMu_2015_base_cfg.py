@@ -36,7 +36,7 @@ dyJetsFakeAna.channel = 'mt'
 tauMuAna = cfg.Analyzer(
     TauMuAnalyzer,
     name='TauMuAnalyzer',
-    pt1=18,
+    pt1=19,
     eta1=2.1,
     iso1=0.1,
     looseiso1=9999.,

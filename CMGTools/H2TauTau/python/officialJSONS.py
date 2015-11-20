@@ -15,6 +15,8 @@ jul13_2012 = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8
 # 2012 Jan2013 re-reco
 jan22_2013 = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Reprocessing/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt'
 
+prompt_2015 = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
+
 
 jsonMap = {
     #
@@ -88,6 +90,9 @@ jsonMap = {
     # Jan 13 re-reco - only use one JSON file
     '.*22Jan2013-v1.*':jan22_2013,
     '.*22Jan2013_v1.*':jan22_2013,
+
+    # 2015
+    '.*Run2015D.*':prompt_2015,
     }
 
 
@@ -107,7 +112,9 @@ if __name__ == '__main__':
         '/Tau/Run2012C-24Aug2012-v1/AOD',
         '/Tau/Run2012D-PromptReco-v1/AOD',
         '/TauPlusX/Run2012D-22Jan2013-v1/AOD/',
-        '/DoubleMuParked/StoreResults-Run2012D_22Jan2013_v1_RHembedded_trans1_tau116_ptmu1_16had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/USER/V5_B'
+        '/DoubleMuParked/StoreResults-Run2012D_22Jan2013_v1_RHembedded_trans1_tau116_ptmu1_16had1_18_v1-f456bdbb960236e5c696adfe9b04eaae/USER/V5_B',
+        '/SingleMuon/Run2015D-PromptReco-v4/MINIAOD',
+        'root://eoscms.cern.ch//eos/cms/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/6CA1C627-246C-E511-8A6A-02163E014147.root'
         ]
 
     for sample in samples:

@@ -105,6 +105,7 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
             pyl = self.__class__.OtherLeptonClass(lep)
             pyl.associatedVertex = event.goodVertices[0]
             pyl.rho = event.rho
+            pyl.event = event
             otherLeptons.append(pyl)
         return otherLeptons
 
@@ -190,13 +191,7 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
 
 
     def testElectronID(self, electron):
-        mva = electron.mvaRun2('NonTrigPhys14')
-        eta = abs(electron.superCluster().eta())
-        if eta < 0.8:
-            return mva > 0.933
-        elif eta < 1.479:
-            return mva > 0.825
-        return mva > 0.337
+        return electron.mvaIDRun2('NonTrigSpring15', 'POG90')
 
     def otherLeptonVeto(self, leptons, otherLeptons, isoCut=0.3):
         # count electrons
@@ -206,7 +201,6 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
                          self.testElectronID(electron) and
                          electron.passConversionVeto() and
                          electron.physObj.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and
-                         # electron.cutBasedId('POG_PHYS14_25ns_v1_Veto') and
                          electron.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) < 0.3]
 
         if len(vOtherLeptons) > 0:
@@ -237,7 +231,7 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
 
     def trigMatched(self, event, diL, requireAllMatched=False):
         
-        matched = super(TauMuAnalyzer, self).trigMatched(event, diL, requireAllMatched=requireAllMatched)
+        matched = super(TauMuAnalyzer, self).trigMatched(event, diL, requireAllMatched=requireAllMatched, ptMin=18.)
 
         if matched and len(diL.matchedPaths) == 1 and diL.leg1().pt() < 25. and 'IsoMu24' in list(diL.matchedPaths)[0]:
             matched = False
@@ -251,40 +245,38 @@ class TauMuAnalyzer(DiLeptonAnalyzer):
         if len(diLeptons) == 1:
             return diLeptons[0]
 
-        minRelIso = min(d.leg1().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) for d in diLeptons)
+        least_iso_highest_pt = lambda dl: (dl.leg1().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0), -dl.leg1().pt(), dl.leg2().tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits"), -dl.leg2().pt())
 
-        diLeps = [dil for dil in diLeptons if dil.leg1().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) == minRelIso]
+        return sorted(diLeptons, key=lambda dil : least_iso_highest_pt(dil))[0]
 
-        if len(diLeps) == 1:
-            return diLeps[0]
+        # minRelIso = min(d.leg1().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) for d in diLeptons)
 
-        maxPt = max(d.leg1().pt() for d in diLeps)
+        # diLeps = [dil for dil in diLeptons if dil.leg1().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) == minRelIso]
 
-        diLeps = [dil for dil in diLeps if dil.leg1().pt() == maxPt]
+        # if len(diLeps) == 1:
+        #     return diLeps[0]
 
-        if len(diLeps) == 1:
-            return diLeps[0]
+        # maxPt = max(d.leg1().pt() for d in diLeps)
 
-        minIso = min(d.leg2().tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits") for d in diLeps)
+        # diLeps = [dil for dil in diLeps if dil.leg1().pt() == maxPt]
 
-        diLeps = [dil for dil in diLeps if dil.leg2().tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits") == minIso]
+        # if len(diLeps) == 1:
+        #     return diLeps[0]
 
-        if len(diLeps) == 1:
-            return diLeps[0]
+        # minIso = min(d.leg2().tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits") for d in diLeps)
 
-        maxPt = max(d.leg2().pt() for d in diLeps)
+        # diLeps = [dil for dil in diLeps if dil.leg2().tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits") == minIso]
 
-        diLeps = [dil for dil in diLeps if dil.leg2().pt() == maxPt]
+        # if len(diLeps) == 1:
+        #     return diLeps[0]
 
-        if len(diLeps) != 1:
-            print 'ERROR in finding best dilepton', diLeps
-            import pdb
-            pdb.set_trace()
+        # maxPt = max(d.leg2().pt() for d in diLeps)
 
-        return diLeps[0]
+        # diLeps = [dil for dil in diLeps if dil.leg2().pt() == maxPt]
 
-        # osDiLeptons = [dl for dl in diLeptons if dl.leg2().charge() != dl.leg1().charge()]
-        # if osDiLeptons:
-        #     return max(osDiLeptons, key=operator.methodcaller('sumPt'))
-        # else:
-        #     return max(diLeptons, key=operator.methodcaller('sumPt'))
+        # if len(diLeps) != 1:
+        #     print 'ERROR in finding best dilepton', diLeps
+        #     import pdb
+        #     pdb.set_trace()
+
+        # return diLeps[0]

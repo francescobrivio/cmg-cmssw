@@ -12,6 +12,11 @@ class H2TauTauTreeProducerTauEle(H2TauTauTreeProducer):
 
         self.bookGenParticle(self.tree, 'l1_gen')
         self.var(self.tree, 'l1_gen_lepfromtau', int)
+
+        self.var(self.tree, 'l1_ntriggerobjects')
+        self.bookGenParticle(self.tree, 'l1_triggerobject1')
+        self.bookGenParticle(self.tree, 'l1_triggerobject2')
+
         self.bookGenParticle(self.tree, 'l2_gen')
         self.var(self.tree, 'l2_gen_lepfromtau', int)
 
@@ -39,6 +44,14 @@ class H2TauTauTreeProducerTauEle(H2TauTauTreeProducer):
         if hasattr(ele, 'genp') and ele.genp:
             self.fillGenParticle(self.tree, 'l1_gen', ele.genp)
             self.fill(self.tree, 'l1_gen_lepfromtau', ele.isTauLep)
+
+        if hasattr(ele, 'triggerobjects'):
+            n_triggerobjects = len(ele.triggerobjects)
+            self.fill(self.tree, 'l1_ntriggerobjects', n_triggerobjects)
+            if n_triggerobjects >= 1:
+                self.fillParticle(self.tree, 'l1_triggerobject1', ele.triggerobjects[0])
+            if n_triggerobjects >= 2:
+                self.fillParticle(self.tree, 'l1_triggerobject2', ele.triggerobjects[1])
         
         # save the p4 of the visible tau products at the generator level
         if tau.genJet() and hasattr(tau, 'genp') and abs(tau.genp.pdgId()) == 15:

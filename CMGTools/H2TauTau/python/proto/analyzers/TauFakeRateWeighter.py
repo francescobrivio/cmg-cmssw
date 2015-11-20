@@ -16,20 +16,19 @@ class TauFakeRateWeighter( Analyzer ):
         self.averages.add('weight', Average('weight') )
 
     def process(self, event):
-        self.weight = 1
+        self.weight = 1.
 
         # print 'FR weighter', self.cfg_comp.name
-        wNames = ['WJets', 'W1Jets', 'W2Jets', 'W3Jets','W4Jets']
+        sampleNames = []
         # Not strictly correct, but this is agreed upon for Summer 2013:
-        for name in wNames:
+        for name in sampleNames:
             if self.cfg_comp.name.startswith(name):
                 tauPt = event.diLepton.leg1().pt()
                 if tauPt > 200.:
                     tauPt = 200.
 
-                self.weight =  1.15743 +  (-0.00736136) * tauPt + (4.3699e-05) * tauPt * tauPt + (-1.188e-07) * tauPt * tauPt * tauPt
-
-                # print 'W sample, weight:', self.weight
+                # self.weight =  1.15743 +  (-0.00736136) * tauPt + (4.3699e-05) * tauPt * tauPt + (-1.188e-07) * tauPt * tauPt * tauPt
+                self.weight =  1. +  0. * tauPt + 0. * tauPt * tauPt + 0. * tauPt * tauPt * tauPt
 
         event.tauFakeRateWeightUp = self.weight + 0.5 * (1. - self.weight)
         event.tauFakeRateWeightDown = self.weight - 0.5 * (1. - self.weight)

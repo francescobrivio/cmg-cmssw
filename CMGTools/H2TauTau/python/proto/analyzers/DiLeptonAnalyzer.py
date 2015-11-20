@@ -275,7 +275,7 @@ class DiLeptonAnalyzer(Analyzer):
         '''Returns the best diLepton (the one with highest pt1 + pt2).'''
         return max(diLeptons, key=operator.methodcaller('sumPt'))
 
-    def trigMatched(self, event, diL, requireAllMatched=False):
+    def trigMatched(self, event, diL, requireAllMatched=False, ptMin=None,  etaMax=None, relaxIds=[11, 15]):
         '''Check that at least one trigger object per pgdId from a given trigger 
         has a matched leg with the same pdg ID. If requireAllMatched is True, 
         requires that each single trigger object has a match.'''
@@ -294,7 +294,11 @@ class DiLeptonAnalyzer(Analyzer):
             allMatched = True
             
             for to in info.objects:
-                if self.trigObjMatched(to, legs):
+                if ptMin and to.pt() < ptMin:
+                    continue
+                if etaMax and abs(to.eta()) > etaMax:
+                    continue
+                if self.trigObjMatched(to, legs, relaxIds=relaxIds):
                     matchedIds.append(abs(to.pdgId()))
                 else:
                     allMatched = False
@@ -309,7 +313,7 @@ class DiLeptonAnalyzer(Analyzer):
         
         return matched
 
-    def trigObjMatched(self, to, legs, dR2Max=0.25):  # dR2Max=0.089999
+    def trigObjMatched(self, to, legs, dR2Max=0.25, relaxIds=[11, 15]):  # dR2Max=0.089999
         '''Returns true if the trigger object is matched to one of the given
         legs'''
         eta = to.eta()
@@ -319,10 +323,18 @@ class DiLeptonAnalyzer(Analyzer):
         for leg in legs:
             # JAN - Single-ele trigger filter has pdg ID 0, to be understood
             # RIC - same seems to happen with di-tau
+            # JAN - If it's two triggers, there's a logical flaw in the e-tau
+            # channel, so maybe we'll have to move to explicit but not very
+            # general requirements (for now added option to relax explicitly)
             if pdgId == abs(leg.pdgId()) or \
-               (pdgId == 0 and abs(leg.pdgId()) == 11) or \
-               (pdgId == 0 and abs(leg.pdgId()) == 15):
+               (pdgId == 0 and abs(leg.pdgId()) in relaxIds):
                 if deltaR2(eta, phi, leg.eta(), leg.phi()) < dR2Max:
-                    to.matched = True                  
+                    to.matched = True
+                    if hasattr(leg, 'triggerobjects'):
+                        if to not in leg.triggerobjects:
+                            leg.triggerobjects.append(to)
+                    else:
+                        leg.triggerobjects = [to]
+
 
         return to.matched

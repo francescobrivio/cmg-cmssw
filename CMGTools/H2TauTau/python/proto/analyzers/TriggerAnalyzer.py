@@ -42,6 +42,10 @@ class TriggerAnalyzer(Analyzer):
         super(TriggerAnalyzer,self).beginLoop(setup)
 
         self.triggerList = self.cfg_comp.triggers
+        self.triggerObjects = []
+        if hasattr(self.cfg_comp, 'triggerobjects'):
+            self.triggerObjects = self.cfg_comp.triggerobjects
+
         self.vetoTriggerList = None
 
         if hasattr(self.cfg_comp, 'vetoTriggers'):
@@ -51,7 +55,11 @@ class TriggerAnalyzer(Analyzer):
         self.counters.addCounter('Trigger')
         self.counters.counter('Trigger').register('All events')
         self.counters.counter('Trigger').register('HLT')
-        
+
+        for trigger in self.triggerList:
+            self.counters.counter('Trigger').register(trigger)
+            self.counters.counter('Trigger').register(trigger + 'prescaled')
+
 
     def process(self, event):
         self.readCollections(event.input)
@@ -81,21 +89,31 @@ class TriggerAnalyzer(Analyzer):
 
             if fired and (prescale == 1 or self.cfg_ana.usePrescaled):
                 trigger_passed = True
+                self.counters.counter('Trigger').inc(trigger_name)            
+            elif fired:
+                print 'WARNING: Trigger not passing because of prescale', trigger_name
+                self.counters.counter('Trigger').inc(trigger_name + 'prescaled')
+
+
+        if self.cfg_ana.requireTrigger:
+            if not trigger_passed:
+                return False
 
         if self.cfg_ana.addTriggerObjects:
             triggerObjects = self.handles['triggerObjects'].product()
             for to in triggerObjects:
                 to.unpackPathNames(names)
                 for info in trigger_infos:
-                    if to.hasPathName(info.name, True):
+                    if to.hasPathName(info.name):
+                        # print 'TO name', [n for n in to.filterLabels()], to.hasPathName(info.name, False)
+                        if self.triggerObjects:
+                            if not any(n in to.filterLabels() for n in self.triggerObjects):
+                                continue
                         info.objects.append(to)
                         info.objIds.add(abs(to.pdgId()))
 
         event.trigger_infos = trigger_infos
 
-        if self.cfg_ana.requireTrigger:
-            if not trigger_passed:
-                return False
             
         self.counters.counter('Trigger').inc('HLT')
         return True

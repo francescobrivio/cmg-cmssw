@@ -42,13 +42,19 @@ def jsonPick( dataset, jsonMap):
     in their name. 
     """
     
+    baseDataSet = dataset
+
     dataset = lfnToDataset(dataset)
 
-    # stripping out the last part of the dataset name
-    # to keep only the base official dataset name
-    dsfields = dataset.lstrip('/').split('/')[0:3]
-    # print dsfields
-    baseDataSet = '/'+'/'.join( dsfields )
+    # Only use stripping if lfn to dataset was successful - can also do pattern
+    # matching on full file name
+    if dataset != baseDataSet:
+      # stripping out the last part of the dataset name
+      # to keep only the base official dataset name
+      dsfields = dataset.lstrip('/').split('/')[0:3]
+      # print dsfields
+      baseDataSet = '/'+'/'.join( dsfields )
+    
         
     # jsonFile = jmap[ baseDataSet ]
     jsonFiles = []
@@ -58,7 +64,7 @@ def jsonPick( dataset, jsonMap):
         if pat.match(baseDataSet):
             jsonFiles.append(value)
     if len(jsonFiles)==0:
-        raise ValueError('No json file found for ' + dataset)
+        raise ValueError('No json file found for ' + dataset +', '+baseDataSet)
     elif len(jsonFiles)>1:
         raise ValueError('Too many json files found')
     else:

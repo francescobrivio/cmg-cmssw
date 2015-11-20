@@ -4,11 +4,22 @@ class VariableCfg(object):
     "binning" is a dict with either nbinsx, xmin, xmax for equidistant binning
     or nbinsx, bins=array([...]).
     '''
-    def __init__(self, name='m_svfit', binning=None, xtitle=None, unit=None):
+    def __init__(self, name='m_svfit', binning=None, xtitle=None, unit=None, drawname=None):
         self.name = name
+        self.drawname = name if drawname is None else drawname
         self.binning = {'nbinsx':10, 'xmin':0., 'xmax':200.} if binning is None else binning
         self.unit = unit
         self.xtitle = name if xtitle is None else xtitle
+
+    def __str__(self):
+        out = 'Variable: name={name}, binning={binning}'.format(name=self.name, binning=self.binning)
+        if self.drawname != self.name:
+            out += ', drawname={drawname}'.format(drawname=self.drawname)
+        if self.xtitle != self.name:
+            out += ', xtitle={xtitle}'.format(xtitle=self.xtitle)
+        if self.unit:
+            out += ', unit={unit}'.format(unit=self.unit)
+        return out
 
 
 class SampleCfg(object):
@@ -25,7 +36,8 @@ class SampleCfg(object):
         self.tree_prod_name = tree_prod_name
         self.tree_name = 'tree' if tree_name is None else tree_name
         self.scale = scale # generic scale, e.g. scale signal by factor 5
-        # a sample-specific weight expression (e.g. extra cut))
+        # a sample-specific weight expression (e.g. extra cut)),
+        # multiplied with the overall histogram weight
         self.weight_expr = weight_expr 
         self.norm_cut = norm_cut
         self.shape_cut = shape_cut

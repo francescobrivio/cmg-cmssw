@@ -12,7 +12,6 @@ class TauIsolationCalculator(Analyzer):
     def declareHandles(self):
 
         super(TauIsolationCalculator, self).declareHandles()
-        self.handles['puppi'] = AutoHandle(('puppi'), 'std::vector<reco::PFCandidate>')
 
         self.getter = self.cfg_ana.getter if hasattr(self.cfg_ana, 'getter') else lambda event: event.selectedTaus
         
@@ -23,8 +22,6 @@ class TauIsolationCalculator(Analyzer):
     def process(self, event):
         self.readCollections(event.input)
 
-        puppi = self.handles['puppi'].product()
-
         for tau in self.getter(event):
             puppi_iso_cands = []
             puppi_iso_cands_04 = []
@@ -34,31 +31,24 @@ class TauIsolationCalculator(Analyzer):
             tau_phi = tau.phi()
             # Normal loop crashes for some reason...
             for i_iso in range(len(tau.isolationCands())):
-                    isoPtSumOld += tau.isolationCands()[i_iso].pt()
-                    eta = tau.isolationCands()[i_iso].eta()
-                    phi = tau.isolationCands()[i_iso].phi()
-                    n_p = 0
-                    for c_p in puppi:
-                        if abs(eta - c_p.eta()) < 0.00001 and \
-                           abs(deltaPhi(phi, c_p.phi())) < 0.00001:
-                            pdgId = c_p.pdgId()
-                            if abs(pdgId) not in [22, 211]:
-                                print 'Found puppi particle with pdgID', pdgId, 'ignoring...'
-                                continue
-                                
-                            puppi_iso_cands.append(c_p)
-                            n_p += 1
-                            dr = deltaR(c_p.eta(), c_p.phi(), tau_eta, tau_phi)
-                            if dr < 0.4:
-                                puppi_iso_cands_04.append(c_p)
-                            if dr < 0.3:
-                                puppi_iso_cands_03.append(c_p)
-                    if n_p > 1:
-                        print 'WARNING, found more than 2 matching puppi particles'
+                iso_cand = tau.isolationCands()[i_iso].get()
+                isoPtSumOld += tau.isolationCands()[i_iso].pt()
 
-            tau.puppi_iso_pt = sum(c_p.pt() for c_p in puppi_iso_cands)
-            tau.puppi_iso04_pt = sum(c_p.pt() for c_p in puppi_iso_cands_04)
-            tau.puppi_iso03_pt = sum(c_p.pt() for c_p in puppi_iso_cands_03)
+                pdgId = iso_cand.pdgId()
+                if abs(pdgId) not in [22, 211]:
+                    # print 'Found puppi particle with pdgID', pdgId, 'ignoring...'
+                    continue
+                    
+                puppi_iso_cands.append(iso_cand)
+                dr = deltaR(iso_cand.eta(), iso_cand.phi(), tau_eta, tau_phi)
+                if dr < 0.4:
+                    puppi_iso_cands_04.append(iso_cand)
+                if dr < 0.3:
+                    puppi_iso_cands_03.append(iso_cand)
+
+            tau.puppi_iso_pt = sum(c_p.pt()*c_p.puppiWeight() for c_p in puppi_iso_cands)
+            tau.puppi_iso04_pt = sum(c_p.pt()*c_p.puppiWeight() for c_p in puppi_iso_cands_04)
+            tau.puppi_iso03_pt = sum(c_p.pt()*c_p.puppiWeight() for c_p in puppi_iso_cands_03)
             # Add puppi isolation
 
         return True

@@ -1,11 +1,13 @@
-import operator
+import ROOT
 
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Muon
 from PhysicsTools.Heppy.physicsobjects.Electron import Electron
+from PhysicsTools.Heppy.physicsobjects.Tau import Tau
+from PhysicsTools.HeppyCore.utils.deltar import deltaR2
 
 from CMGTools.H2TauTau.proto.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
-from CMGTools.H2TauTau.proto.physicsobjects.DiObject import DiMuon
+from CMGTools.H2TauTau.proto.physicsobjects.DiObject import DiMuon, DirectDiTau
 
 class MuMuAnalyzer(DiLeptonAnalyzer):
 
@@ -15,10 +17,16 @@ class MuMuAnalyzer(DiLeptonAnalyzer):
 
     def declareHandles(self):
         super(MuMuAnalyzer, self).declareHandles()
-        self.handles['diLeptons'] = AutoHandle(
-            'cmgDiMuCorSVFitFullSel',
-            'std::vector<pat::CompositeCandidate>'
+        if hasattr(self.cfg_ana, 'from_single_objects') and self.cfg_ana.from_single_objects:
+            self.handles['met'] = AutoHandle(
+                'slimmedMETs',
+                'std::vector<pat::MET>'
             )
+        else:
+            self.handles['diLeptons'] = AutoHandle(
+                'cmgDiMuCorSVFitFullSel',
+                'std::vector<pat::CompositeCandidate>'
+                )
 
         self.handles['otherLeptons'] = AutoHandle(
             'slimmedElectrons',
@@ -30,6 +38,11 @@ class MuMuAnalyzer(DiLeptonAnalyzer):
             'std::vector<pat::Muon>'
             )
         
+        self.handles['taus'] = AutoHandle(
+                'slimmedTaus',
+                'std::vector<pat::Tau>'
+            )
+
         self.mchandles['genParticles'] = AutoHandle(
             'prunedGenParticles',
             'std::vector<reco::GenParticle>'
@@ -48,13 +61,30 @@ class MuMuAnalyzer(DiLeptonAnalyzer):
             pydil.leg2().associatedVertex = event.goodVertices[0]
             if not self.testLeg2(pydil.leg2(), 99999):
                 continue
-            # JAN: This crashes. Waiting for idea how to fix this; may have
-            # to change data format otherwise, though we don't yet strictly
-            # need the MET significance matrix here since we calculate SVFit
-            # before
+
             pydil.mvaMetSig = pydil.met().getSignificanceMatrix()
             diLeptons.append(pydil)
         return diLeptons
+
+    def buildDiLeptonsSingle(self, leptons, event):
+        di_leptons = []
+        met = self.handles['met'].product()[0]
+        for pat_muon1 in leptons:
+            muon1 = self.__class__.LeptonClass(pat_muon1)
+            for pat_muon2 in leptons:
+                if pat_muon1 == pat_muon2:
+                    continue
+
+                muon2 = self.__class__.LeptonClass(pat_muon2)
+                di_tau = DirectDiTau(muon1, muon2, met)
+                di_tau.leg2().associatedVertex = event.goodVertices[0]
+                di_tau.leg1().associatedVertex = event.goodVertices[0]
+                if not self.testLeg1(di_tau.leg1(), 99999):
+                    continue
+
+                di_tau.mvaMetSig = None
+                di_leptons.append(di_tau)
+        return di_leptons
 
 
     def buildLeptons(self, patLeptons, event):
@@ -76,18 +106,21 @@ class MuMuAnalyzer(DiLeptonAnalyzer):
             pyl = self.__class__.OtherLeptonClass(lep)
             pyl.associatedVertex = event.goodVertices[0]
             pyl.rho = event.rho
+            pyl.event = event
             otherLeptons.append(pyl)
         return otherLeptons
 
 
     def process(self, event):
+        event.goodVertices = event.vertices
+
         result = super(MuMuAnalyzer, self).process(event)
 
         if result is False:
             # trying to get a dilepton from the control region.
             # it must have well id'ed and trig matched legs,
             # di-lepton and tri-lepton veto must pass
-            result = self.selectionSequence(event, fillCounter=False,
+            result = self.selectionSequence(event, fillCounter=True,
                                             leg1IsoCut=-9999,
                                             leg2IsoCut=9999)
             if result is False:
@@ -98,6 +131,14 @@ class MuMuAnalyzer(DiLeptonAnalyzer):
         else:
             event.isSignal = True
       
+        event.selectedTaus = [Tau(tau) for tau in self.handles['taus'].product() 
+                              if tau.pt() > 18. 
+                              and deltaR2(tau, event.leg1) > 0.25
+                              and deltaR2(tau, event.leg2) > 0.25]
+
+        for tau in event.selectedTaus:
+            tau.associatedVertex = event.goodVertices[0]
+
         return True
         
 
@@ -116,7 +157,7 @@ class MuMuAnalyzer(DiLeptonAnalyzer):
 
     def testLeg2ID(self, muon):
         '''Tight muon selection, no isolation requirement'''
-        return muon.tightId() and self.testVertex( muon )
+        return muon.muonID('POG_ID_Medium') and self.testVertex(muon)
                
 
     def testLeg2Iso(self, muon, isocut):
@@ -124,8 +165,10 @@ class MuMuAnalyzer(DiLeptonAnalyzer):
         if isocut is None:
             isocut = self.cfg_ana.iso2
 
-        return muon.relIso(dBetaFactor=0.5, allCharged=1) < isocut    
+        return muon.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) < isocut    
 
+    def testElectronID(self, electron):
+        return electron.mvaIDRun2('NonTrigSpring15', 'POG90')
 
     def thirdLeptonVeto(self, leptons, otherLeptons, ptcut=10, isocut=0.3):
         '''Tri-lepton veto. Returns False if > 2 leptons (e or mu).'''
@@ -134,31 +177,48 @@ class MuMuAnalyzer(DiLeptonAnalyzer):
                     self.testLeg2ID(lep) and
                     self.testLeg2Iso(lep, isocut)
                    ]
-        # count electrons
-        votherLeptons = [olep for olep in otherLeptons if 
-                         self.testLegKine(olep, ptcut=ptcut, etacut=2.5) and
-                         # Take loose MVA ID for now
-                         olep.mvaIDLoose() and
-                         self.testVertex(olep) and
-                         olep.relIso(dBetaFactor=0.5, allCharged=0) < isocut
-                        ]
-        if len(vleptons) + len(votherLeptons) > 2:
+
+        if len(vleptons)> 2:
             return False
         
         return True
-        
 
-    def leptonAccept(self, leptons):
+    def otherLeptonVeto(self, leptons, otherLeptons, isoCut=0.3):
+        # count electrons
+        vOtherLeptons = [electron for electron in otherLeptons if
+                         self.testLegKine(electron, ptcut=10, etacut=2.5) and
+                         self.testVertex(electron) and
+                         self.testElectronID(electron) and
+                         electron.passConversionVeto() and
+                         electron.physObj.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and
+                         electron.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) < 0.3]
+
+        if len(vOtherLeptons) > 0:
+            return False
+
+        return True
+
+    def trigMatched(self, event, diL, requireAllMatched=False):
+        
+        matched = super(MuMuAnalyzer, self).trigMatched(event, diL, requireAllMatched=requireAllMatched, ptMin=18., etaMax=2.1)
+
+        if matched and len(diL.matchedPaths) == 1 and diL.leg1().pt() < 25. and 'IsoMu24' in list(diL.matchedPaths)[0]:
+            matched = False
+
+        return matched
+
+    def leptonAccept(self, leptons, event):
         '''Di-lepton veto: none applied for now'''
         return True
 
     def bestDiLepton(self, diLeptons):
-        '''Returns the best diLepton (1st precedence opposite-sign, 2nd precedence
-        highest pt1 + pt2).'''
+        '''Returns the best diLepton (1st precedence least iso, 2nd
+        precedence highest pT.'''
 
-        osDiLeptons = [dl for dl in diLeptons if dl.leg1().charge() != dl.leg2().charge()]
-        if osDiLeptons:
-            return max(osDiLeptons, key=operator.methodcaller('sumPt'))
-        else:
-            return max(diLeptons, key=operator.methodcaller('sumPt'))
+        if len(diLeptons) == 1:
+            return diLeptons[0]
+
+        least_iso_highest_pt = lambda dl: (dl.leg1().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0), -dl.leg1().pt(), dl.leg2().relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0), -dl.leg2().pt())
+
+        return sorted(diLeptons, key=lambda dil : least_iso_highest_pt(dil))[0]
 

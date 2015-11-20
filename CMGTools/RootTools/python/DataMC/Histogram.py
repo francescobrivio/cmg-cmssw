@@ -168,7 +168,7 @@ class Histogram( object ):
             return hist.Integral(0, hist.GetNbinsX()+1)
         elif bmin is not None and bmax is not None:
             # import pdb; pdb.set_trace()
-            if (xmax - xmin) % self.obj.GetBinWidth(1) != 0:
+            if (xmax - xmin) % self.obj.GetBinWidth(1) > 1E-10:
                 raise ValueError('boundaries should define an integer number of bins. nbins=%d, xmin=%3.3f, xmax=%3.3f' % (self.obj.GetNbinsX(), self.obj.GetXaxis().GetXmin(), self.obj.GetXaxis().GetXmax()) )
             return hist.Integral(bmin, bmax)
         else:

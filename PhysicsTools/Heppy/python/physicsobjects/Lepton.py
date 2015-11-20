@@ -22,7 +22,7 @@ class Lepton( PhysicsObject):
 
     def relIso(self, dBetaFactor=0, allCharged=0):
         '''Relative isolation with default cone size of 0.4.'''
-        rel = self.absIsoR(dBetaFactor, allCharged)/self.pt()
+        rel = self.absIsoR(dBetaFactor=dBetaFactor, allCharged=allCharged)/self.pt()
         return rel
 
     def absIsoR(self, R=0.4, dBetaFactor=0, allCharged=False):

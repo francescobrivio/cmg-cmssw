@@ -30,7 +30,9 @@ common = [
     'keep *_particleFlowNoMuonPUPPI_*_*',
     'keep *_pfMetPuppi_*_*',
     'keep *_generator_*_*',
-    'keep *_genEvtWeightsCounter_*_*'
+    'keep *_genEvtWeightsCounter_*_*',
+    'keep *_offlineBeamSpot_*_*',
+    'keep *_reducedEgamma_reducedConversions_*'
     ]
 
 commonDebug = copy.deepcopy(common) 
