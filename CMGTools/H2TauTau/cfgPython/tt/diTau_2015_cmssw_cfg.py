@@ -64,6 +64,7 @@ tau1Weighter = cfg.Analyzer(
   lepton      = 'leg1'              ,
   verbose     = False               ,
   disable     = True                ,
+  DYweighter  = True                ,
   )
 
 tau2Weighter = cfg.Analyzer(
@@ -74,6 +75,7 @@ tau2Weighter = cfg.Analyzer(
   lepton      = 'leg2'              ,
   verbose     = False               ,
   disable     = True                ,
+  DYweighter  = True                ,
   )
 
 treeProducer = cfg.Analyzer(
@@ -109,31 +111,50 @@ svfitProducer = cfg.Analyzer(
 # MC_list = my_connect.MC_list
 
 from CMGTools.RootTools.utils.splitFactor                     import splitFactor
-from CMGTools.TTHAnalysis.samples.ComponentCreator            import ComponentCreator
-from CMGTools.TTHAnalysis.samples.samples_13TeV_74X           import TTJets_LO, DYJetsToLL_M50, WJetsToLNu
-from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauTau import mc_triggers as mc_triggers_tt
+#from CMGTools.TTHAnalysis.samples.ComponentCreator            import ComponentCreator
+from CMGTools.RootTools.samples.ComponentCreator              import ComponentCreator
+#from CMGTools.TTHAnalysis.samples.samples_13TeV_74X           import TTJets_LO, DYJetsToLL_M50, WJetsToLNu
+#from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauTau import mc_triggers as mc_triggers_tt
 
-creator = ComponentCreator()
-ggh160 = creator.makeMCComponent('GGH160', '/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 'CMS', '.*root', 1.0)
 
-MC_list = [ggh160, TTJets_LO, DYJetsToLL_M50, WJetsToLNu]
+#creator = ComponentCreator()
+#ggh160 = creator.makeMCComponent('GGH160', '/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 'CMS', '.*root', 1.0)
+from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG160 as ggh160
+from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D_05Oct, SingleMuon_Run2015D_Promptv4
+from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import DYJetsToLL_M50_LO #WJetsToLNu_LO
+from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauTau import mc_triggers, mc_triggerfilters, data_triggers, data_triggerfilters
+
+
+#MC_list = [ggh160, TTJets_LO, DYJetsToLL_M50, WJetsToLNu]
+MC_list = [ggh160, DYJetsToLL_M50_LO]
 
 
 first_data = cfg.DataComponent(
     name='first2pb',
     intLumi='2.0', # in pb
     files=['/afs/cern.ch/user/g/gpetrucc/public/miniAOD-express_PAT_251168.root'],
-    triggers=mc_triggers_tt,
+    triggers=mc_triggers,
     json=None
 )
 
 split_factor = 1e5
 
 for sample in MC_list:
-    sample.triggers = mc_triggers_tt
+    sample.triggers = mc_triggers
+    sample.triggerobjects = mc_triggerfilters
     sample.splitFactor = splitFactor(sample, split_factor)
 
 data_list = [first_data]
+data_list = [SingleMuon_Run2015D_05Oct, SingleMuon_Run2015D_Promptv4]
+
+for sample in data_list:
+    sample.triggers = data_triggers
+    sample.triggerobjects = data_triggerfilters
+    sample.splitFactor = splitFactor(sample, split_factor)
+    #sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
+    sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt'    
+    #sample.lumi = 40.03
+    sample.lumi = 2100
 
 ###################################################
 ###              ASSIGN PU to MC                ###
@@ -146,6 +167,7 @@ for mc in MC_list:
 ###             SET COMPONENTS BY HAND          ###
 ###################################################
 selectedComponents = MC_list + data_list
+selectedComponents = MC_list
 # selectedComponents = mc_dict['HiggsGGH125']
 # for c in selectedComponents : c.splitFactor *= 5
 
@@ -175,15 +197,22 @@ if pick_events:
 ###################################################
 if not production:
   cache                = True
-#   comp                 = my_connect.mc_dict['HiggsGGH125']
-  comp                 = DYJetsToLL_M50
+  #comp                 = my_connect.mc_dict['HiggsGGH125']
+  #comp                 = DYJetsToLL_M50
+  #comp                 = ggh160
+  #comp                 = SingleMuon_Run2015D_Promptv4
+  comp                 = SingleMuon_Run2015D_05Oct
+  #comp                 = DYJetsToLL_M50_LO
   selectedComponents   = [comp]
+  #selectedComponents = data_list
+  #for comp in selectedComponents:
   comp.splitFactor     = 1
   comp.fineSplitFactor = 1
-  comp.files           = comp.files[:1]
+  #comp.files           = comp.files[:1]
 
 from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
-preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg.py")
+preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg_05Oct.py")
+#preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg.py")
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script

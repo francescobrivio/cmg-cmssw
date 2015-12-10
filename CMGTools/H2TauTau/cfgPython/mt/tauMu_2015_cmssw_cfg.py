@@ -13,6 +13,7 @@ from CMGTools.H2TauTau.proto.analyzers.MuonIsolationCalculator import MuonIsolat
 
 from CMGTools.RootTools.utils.splitFactor import splitFactor
 from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, SingleTop, WJetsToLNu_LO, QCD_Mu5, DYJetsToLL_M50_LO
+from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow_ext, WJetsToLNu_LO, DYJetsToLL_M50_LO, TBar_tWch, T_tWch, ST_tchan_anti, ST_tchan_top, VVTo2L2Nu, WWTo1L1Nu2Q, ZZTo2L2Q, ZZTo4L, WWToLNuQQ, WWTo2L2Nu, WZTo2L2Q, WZTo3L, WZTo1L3Nu, WZTo1L1Nu2Q
 from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D_05Oct, SingleMuon_Run2015B_05Oct, SingleMuon_Run2015D_Promptv4
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import mc_triggers, mc_triggerfilters
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import data_triggers, data_triggerfilters
@@ -59,13 +60,15 @@ ggh125 = HiggsGGH125
 # DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, 
 
 # Minimal list of samples
-samples = [TT_pow, ggh125, ggh160]
-samples += [WJetsToLNu_LO, DYJetsToLL_M50_LO]
-samples += [WWTo2L2Nu, ZZp8, WZp8]
-samples += [QCD_Mu15, HiggsGGH125, HiggsVBF125, HiggsTTH125] + SingleTop
+#samples = [TT_pow, ggh125, ggh160]
+#samples += [WJetsToLNu_LO, DYJetsToLL_M50_LO]
+#samples += [WWTo2L2Nu, ZZp8, WZp8]
+#samples += [QCD_Mu15, HiggsGGH125, HiggsVBF125, HiggsTTH125] + SingleTop
 
-# Additional samples
-
+# Samples for Sync 2015 datacard
+samples = [ggh160, TT_pow_ext, WJetsToLNu_LO, DYJetsToLL_M50_LO]
+samples += [TBar_tWch, T_tWch, ST_tchan_anti, ST_tchan_top]
+samples += [VVTo2L2Nu, ZZTo2L2Q, ZZTo4L, WWTo1L1Nu2Q, WZTo2L2Q, WZTo3L, WZTo1L3Nu, WZTo1L1Nu2Q]
 
 split_factor = 1e5
 
@@ -103,7 +106,7 @@ selectedComponents = samples
 ###################################################
 
 if pick_events:
-    eventSelector.toSelect = [72752, 433276, 96797, 399002, 42410, 3634, 183225, 341279, 411907, 347181, 102207, 211353, 374441, 365024, 434435, 316483, 453194, 318491, 418480, 54085, 352085]
+    eventSelector.toSelect = [72752, 433276, 316483, 453194, 318491, 418480, 54085, 352085]
     sequence.insert(0, eventSelector)
 
 if not syncntuple:
@@ -116,10 +119,20 @@ if not syncntuple:
 if not production:
     cache = True
     # comp = samples[0]
-    comp = ggh160
+    #comp = ggh160
+    #comp = WJetsToLNu_LO
+    comp = TT_pow_ext
+    #comp = DYJetsToLL_M50_LO
+    #comp = TBar_tWch
+    #comp = T_tWch
+    #comp = ST_tchan_anti
+    #comp = ST_tchan_top
     selectedComponents = [comp]
-    comp.splitFactor = 20
-    comp.fineSplitFactor = 10
+    #selectedComponents = samples
+    comp.splitFactor = 1
+    comp.fineSplitFactor = 1
+    #comp.splitFactor = 20
+    #comp.fineSplitFactor = 10
     # comp.files = comp.files[]
 
 preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg.py", addOrigAsSecondary=False)

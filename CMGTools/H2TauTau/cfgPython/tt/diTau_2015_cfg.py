@@ -18,7 +18,7 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence, genAna, dyJets
 production = getHeppyOption('production')
 
 # local switches
-syncntuple   = True
+syncntuple   = False
 computeSVfit = False
 pick_events  = False
 
@@ -62,6 +62,7 @@ tau1Weighter = cfg.Analyzer(
   lepton      = 'leg1'              ,
   verbose     = False               ,
   disable     = True                ,
+  DYweighter  = True,
   )
 
 tau2Weighter = cfg.Analyzer(
@@ -101,13 +102,13 @@ svfitProducer = cfg.Analyzer(
 ### CONNECT SAMPLES TO THEIR ALIASES AND FILES  ###
 ###################################################
 from CMGTools.RootTools.utils.splitFactor import splitFactor
-from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, SingleTop, WJetsToLNu_LO, QCD_Mu5, DYJetsToLL_M50_LO
+#from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, SingleTop, WJetsToLNu_LO, QCD_Mu5, DYJetsToLL_M50_LO
 from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D_05Oct, SingleMuon_Run2015B_05Oct, SingleMuon_Run2015D_Promptv4
 from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG160 as ggh160
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauTau import mc_triggers, mc_triggerfilters, data_triggers, data_triggerfilters
+from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import DYJetsToLL_M50_LO #WJetsToLNu_LO
 
-
-MC_list = [ggh160]
+MC_list = [ggh160, DYJetsToLL_M50_LO]
 data_list = [SingleMuon_Run2015D_05Oct, SingleMuon_Run2015D_Promptv4]
 
 split_factor = 1e5
@@ -157,16 +158,17 @@ if syncntuple:
 ###################################################
 if pick_events:
 
-    import csv
-    fileName = '/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_7_4_3/src/CMGTools/H2TauTau/cfgPython/2015-sync/Imperial.csv'
-#     fileName = '/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_7_4_3/src/CMGTools/H2TauTau/cfgPython/2015-sync/CERN.csv'
-    f = open(fileName, 'rb')
-    reader = csv.reader(f)
-    evtsToPick = []
+    #import csv
+    #fileName = '/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_7_4_3/src/CMGTools/H2TauTau/cfgPython/2015-sync/Imperial.csv'
+    #fileName = '/afs/cern.ch/work/m/manzoni/diTau2015/CMSSW_7_4_3/src/CMGTools/H2TauTau/cfgPython/2015-sync/CERN.csv'
+    #f = open(fileName, 'rb')
+    #reader = csv.reader(f)
+    #evtsToPick = []
 
-    for i, row in enumerate(reader):
-        evtsToPick += [int(j) for j in row]
+    #for i, row in enumerate(reader):
+    #    evtsToPick += [int(j) for j in row]
 
+    evtsToPick = [309632]
     eventSelector.toSelect = evtsToPick
     sequence.insert(0, eventSelector)
 
@@ -175,12 +177,12 @@ if pick_events:
 ###################################################
 if not production:
   cache                = True
-#   comp                 = my_connect.mc_dict['HiggsGGH125']
-#   comp                 = DYJetsToLL_M50
-#   comp                 = run2015B
-  comp                 = ggh160
+  #comp                 = my_connect.mc_dict['HiggsGGH125']
+  comp                 = DYJetsToLL_M50_LO
+  #comp                 = run2015B
+  #comp                 = ggh160
   selectedComponents   = [comp]
-  comp.splitFactor     = 4
+  comp.splitFactor     = 1
   comp.fineSplitFactor = 1
 #   comp.files           = comp.files[:1]
 #   for comp in selectedComponents:

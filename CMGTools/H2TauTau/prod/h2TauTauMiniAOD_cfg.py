@@ -18,7 +18,8 @@ debugEventContent = False
 
 # choose from 'tau-mu' 'di-tau' 'tau-ele' 'mu-ele' 'all-separate', 'all'
 # channel = 'all'
-channel = 'tau-mu'
+#channel = 'tau-mu'
+channel = 'di-tau'
 
 # runSVFit enables the svfit mass reconstruction used for the H->tau tau analysis.
 # if false, no mass calculation is carried out
@@ -38,14 +39,19 @@ print 'runSVFit', runSVFit
 # dataset_name = '/VBF_HToTauTau_M-125_13TeV-powheg-pythia6/Spring14dr-PU20bx25_POSTLS170_V5-v1/AODSIM/SS14/'
 # dataset_files = 'miniAOD-prod_PAT_.*root'
 
-local_run = True
+#local_run = True
+local_run = False
 if local_run:
     from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG160 as ggh160
+    from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow_ext, WJetsToLNu_LO, DYJetsToLL_M50_LO, TBar_tWch, T_tWch, ST_tchan_anti, ST_tchan_top, VVTo2L2Nu, WWTo1L1Nu2Q, ZZTo2L2Q, ZZTo4L, WWToLNuQQ, WWTo2L2Nu, WZTo2L2Q, WZTo3L, WZTo1L3Nu, WZTo1L1Nu2Q
+    #sample = TBar_tWch T_tWch
+    sample =  ST_tchan_top
     process.source = cms.Source(
         "PoolSource",
         noEventSort = cms.untracked.bool(True),
         duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
         fileNames = cms.untracked.vstring(ggh160.files)
+        #fileNames = cms.untracked.vstring(sample.files)
     )
     # dataset_user = 'CMS'
     # dataset_name = '/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM'
@@ -65,12 +71,17 @@ else:
     #     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     #     fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/miniAODSIM/Asympt25ns_MCRUN2_74_V9-v3/10000/8CF409BF-6A14-E511-A190-0025905964C2.root')
     # )
-    from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D_Promptv4
+    from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D_Promptv4, SingleMuon_Run2015D_05Oct
+    #from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import WJetsToLNu_LO, DYJetsToLL_datac
+    from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import DYJetsToLL_M50_LO
     process.source = cms.Source(
         "PoolSource",
         noEventSort = cms.untracked.bool(True),
         duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-        fileNames = cms.untracked.vstring(SingleMuon_Run2015D_Promptv4.files)
+        fileNames = cms.untracked.vstring(DYJetsToLL_M50_LO.files)
+        #fileNames = cms.untracked.vstring(SingleMuon_Run2015D_Promptv4.files)
+        #fileNames = cms.untracked.vstring(SingleMuon_Run2015D_05Oct.files)
+        #fileNames = cms.untracked.vstring(WJetsToLNu_LO.files)
     )
 
 

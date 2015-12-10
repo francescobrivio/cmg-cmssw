@@ -10,6 +10,7 @@ from CMGTools.H2TauTau.proto.analyzers.MuonIsolationCalculator import MuonIsolat
 
 from CMGTools.RootTools.utils.splitFactor import splitFactor
 from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, WJetsToLNu_LO, QCD_Mu5, DYJetsToLL_M50_LO, TBar_tWch, T_tWch
+from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow_ext, WJetsToLNu_LO, DYJetsToLL_M50_LO, TBar_tWch, T_tWch, ST_tchan_anti, ST_tchan_top, VVTo2L2Nu, WWTo1L1Nu2Q, ZZTo2L2Q, ZZTo4L, WWToLNuQQ, WWTo2L2Nu, WZTo2L2Q, WZTo3L, WZTo1L3Nu, WZTo1L1Nu2Q
 from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D_05Oct, SingleMuon_Run2015B_05Oct, SingleMuon_Run2015D_Promptv4
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import mc_triggers, mc_triggerfilters
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import data_triggers, data_triggerfilters
@@ -47,14 +48,18 @@ treeProducer.addIsoInfo = True
 # DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, 
 
 # Minimal list of samples
-samples = [TT_pow, HiggsGGH125, ggh160]
-samples += [WJetsToLNu_LO, DYJetsToLL_M50_LO]
-samples += [ZZp8, WZp8]
-samples += [QCD_Mu15, HiggsGGH125, HiggsVBF125, HiggsTTH125]
-samples += [TBar_tWch, T_tWch, WWTo2L2Nu]
+#samples = [TT_pow, HiggsGGH125, ggh160]
+#samples += [WJetsToLNu_LO, DYJetsToLL_M50_LO]
+#samples += [ZZp8, WZp8]
+#samples += [QCD_Mu15, HiggsGGH125, HiggsVBF125, HiggsTTH125]
+#samples += [TBar_tWch, T_tWch, WWTo2L2Nu]
 
-# Additional samples
-
+# Sync for datacards samples
+#samples = [ggh160]
+samples = [TT_pow_ext, WJetsToLNu_LO, DYJetsToLL_M50_LO]
+samples = [TBar_tWch, T_tWch, ST_tchan_anti, ST_tchan_top]
+#samples = [VVTo2L2Nu, WWTo1L1Nu2Q, ZZTo2L2Q, ZZTo4L, WWToLNuQQ]
+#samples = [WWTo2L2Nu, WZTo2L2Q, WZTo3L, WZTo1L3Nu, WZTo1L1Nu2Q]
 
 split_factor = 1e5
 
@@ -104,11 +109,16 @@ if not syncntuple:
 ###################################################
 if not production:
     cache = True
-    # comp = samples[0]
-    comp = ggh160
+    #comp = samples[0]
+    #comp = ggh160
+    #comp = DYJetsToLL_M50_LO
+    #comp = WJetsToLNu_LO
+    comp = TT_pow_ext
     selectedComponents = [comp]
-    comp.splitFactor = 1
-    comp.fineSplitFactor = 1
+    #selectedComponents = samples
+    for comp in selectedComponents :
+        comp.splitFactor = 1
+        comp.fineSplitFactor = 6
     # comp.files = comp.files[]
 
 

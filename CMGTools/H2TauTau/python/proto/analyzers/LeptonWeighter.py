@@ -5,6 +5,51 @@ from PhysicsTools.HeppyCore.statistics.average import Average
 from CMGTools.H2TauTau.proto.TriggerEfficiency import TriggerEfficiency
 from CMGTools.H2TauTau.proto.analyzers.RecEffCorrection import recEffMapEle, recEffMapMu
 
+import ROOT
+import math
+
+def _crystalballPositiveAlpha( x, alpha, n, mu, sigma):
+    '''
+    https://en.wikipedia.org/wiki/Crystal_Ball_function
+    ''' 
+    
+    expArg = -0.5 * ROOT.TMath.Power(abs(alpha), 2.)
+    gauss  = ROOT.TMath.Exp(expArg)
+        
+    A = ROOT.TMath.Power( (n/abs(alpha)), n) * gauss
+    B = n / abs(alpha) - abs(alpha)
+    C = n / (abs(alpha) * (n - 1.)) * gauss
+    D = math.sqrt(math.pi/2.) * (1. + ROOT.TMath.Erf(abs(alpha)/math.sqrt(2.))) 
+    N = 1. / (sigma * (C + D))
+
+    pull = (x - mu)/sigma 
+        
+    if pull > -alpha:
+        func = N * ROOT.TMath.Gaus(x, mu, sigma)
+    else:
+        func = N * A * ROOT.TMath.Power( (B - pull), -n )
+
+    return func
+
+def _crystalball( x, alpha, n, mu, sigma, scale ):
+    
+    if alpha > 0.:
+        return scale * _crystalballPositiveAlpha( x, alpha, n, mu, sigma ) 
+    else:
+        x1     = 2 * mu - x
+        alpha1 = -alpha
+        return scale * _crystalballPositiveAlpha( x1, alpha1, n, mu, sigma ) 
+
+
+def crystalball(x, par):
+    x     = x[0]
+    alpha = par[0]
+    n     = par[1]
+    mu    = par[2]
+    sigma = par[3]
+    scale = par[4]
+    return _crystalball(x, alpha, n, mu, sigma, scale)
+
 
 class LeptonWeighter( Analyzer ):
     '''Gets lepton efficiency weight and puts it in the event'''
@@ -79,7 +124,17 @@ class LeptonWeighter( Analyzer ):
             
         lep.recEffWeight = lep.idWeight * lep.isoWeight
         lep.weight = lep.triggerWeight * lep.recEffWeight
+        DYweight = 1.
+        if hasattr(self.cfg_ana, 'DYweighter') and self.cfg_ana.DYweighter is True:
+            print '--------HAS ATTR --------'
+            print 'lep.pt()', lep.pt()
+            par = [2.07990, 89.9997, 35.8956, 5.11556, 0.968286]
+            x = [lep.pt()]
+            DYweight = crystalball(x, par)
+            print 'DYweight', DYweight
 
+
+        lep.weight *= DYweight
         event.eventWeight *= lep.weight
 	if not hasattr(event,"triggerWeight"): event.triggerWeight=1.0
         event.triggerWeight *= lep.triggerWeight
