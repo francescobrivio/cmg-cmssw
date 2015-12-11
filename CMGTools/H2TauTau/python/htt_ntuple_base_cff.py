@@ -43,6 +43,7 @@ triggerAna = cfg.Analyzer(
     name='TriggerAnalyzer',
     addTriggerObjects=True,
     requireTrigger=True,
+    #requireTrigger=False,
     usePrescaled=False
 )
 

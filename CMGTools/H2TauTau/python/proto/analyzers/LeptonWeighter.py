@@ -124,17 +124,23 @@ class LeptonWeighter( Analyzer ):
             
         lep.recEffWeight = lep.idWeight * lep.isoWeight
         lep.weight = lep.triggerWeight * lep.recEffWeight
+
+        # FRANCESCO: Adding a weighter fot the DYsample. As the DYJets do not have the correct trigger
+        #            the are reweighted with a CrystalBall
         DYweight = 1.
         if hasattr(self.cfg_ana, 'DYweighter') and self.cfg_ana.DYweighter is True:
-            print '--------HAS ATTR --------'
-            print 'lep.pt()', lep.pt()
+            #print '--------HAS ATTR --------'
+            #print 'lep.pt()', lep.pt()
             par = [2.07990, 89.9997, 35.8956, 5.11556, 0.968286]
             x = [lep.pt()]
             DYweight = crystalball(x, par)
-            print 'DYweight', DYweight
-
-
+            #print 'DYweight', DYweight
+        #print 'before lep.weight', lep.weight
+        #print 'lep.weight*DYweight', lep.weight * DYweight
         lep.weight *= DYweight
+        #print 'after lep.weight', lep.weight
+
+
         event.eventWeight *= lep.weight
 	if not hasattr(event,"triggerWeight"): event.triggerWeight=1.0
         event.triggerWeight *= lep.triggerWeight
