@@ -73,15 +73,16 @@ else:
     # )
     from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D_Promptv4, SingleMuon_Run2015D_05Oct
     #from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import WJetsToLNu_LO, DYJetsToLL_datac
-    from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import DYJetsToLL_M50_LO
+    from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import DYJetsToLL_M50_LO, WJetsToLNu_LO, TTJets_LO
     process.source = cms.Source(
         "PoolSource",
         noEventSort = cms.untracked.bool(True),
         duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-        fileNames = cms.untracked.vstring(DYJetsToLL_M50_LO.files)
+        #fileNames = cms.untracked.vstring(DYJetsToLL_M50_LO.files)
         #fileNames = cms.untracked.vstring(SingleMuon_Run2015D_Promptv4.files)
         #fileNames = cms.untracked.vstring(SingleMuon_Run2015D_05Oct.files)
         #fileNames = cms.untracked.vstring(WJetsToLNu_LO.files)
+        fileNames = cms.untracked.vstring(TTJets_LO.files)
     )
 
 

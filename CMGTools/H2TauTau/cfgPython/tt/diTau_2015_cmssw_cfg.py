@@ -121,12 +121,12 @@ from CMGTools.RootTools.samples.ComponentCreator              import ComponentCr
 #ggh160 = creator.makeMCComponent('GGH160', '/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM', 'CMS', '.*root', 1.0)
 from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG160 as ggh160
 from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D_05Oct, SingleMuon_Run2015D_Promptv4
-from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import DYJetsToLL_M50_LO #WJetsToLNu_LO
+from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import DYJetsToLL_M50_LO, WJetsToLNu_LO, TTJets_LO
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauTau import mc_triggers, mc_triggerfilters, data_triggers, data_triggerfilters
 
 
 #MC_list = [ggh160, TTJets_LO, DYJetsToLL_M50, WJetsToLNu]
-MC_list = [ggh160, DYJetsToLL_M50_LO]
+MC_list = [ggh160, DYJetsToLL_M50_LO, WJetsToLNu_LO, TTJets_LO]
 
 
 first_data = cfg.DataComponent(
@@ -202,17 +202,19 @@ if not production:
   #comp                 = ggh160
   #comp                 = SingleMuon_Run2015D_Promptv4
   #comp                 = SingleMuon_Run2015D_05Oct
-  comp                 = DYJetsToLL_M50_LO
+  #comp                 = DYJetsToLL_M50_LO
+  comp                 = WJetsToLNu_LO
+  #comp                 = TTJets_LO
   selectedComponents   = [comp]
   #selectedComponents = data_list
   #for comp in selectedComponents:
   comp.splitFactor     = 1
-  comp.fineSplitFactor = 1
+  comp.fineSplitFactor = 3
   #comp.files           = comp.files[:1]
 
 from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
 #preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg_05Oct.py")
-preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg.py")
+preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg_WJets.py")
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script
