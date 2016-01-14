@@ -20,13 +20,19 @@ HiggsSUSYGG350 = creator.makeMCComponent("HiggsSUSYGG350", "/SUSYGluGluToHToTauT
 HiggsSUSYGG400 = creator.makeMCComponent("HiggsSUSYGG400", "/SUSYGluGluToHToTauTau_M-400_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 HiggsSUSYGG450 = creator.makeMCComponent("HiggsSUSYGG450", "/SUSYGluGluToHToTauTau_M-450_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 HiggsSUSYGG500 = creator.makeMCComponent("HiggsSUSYGG500", "/SUSYGluGluToHToTauTau_M-500_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
-HiggsSUSYGG600 = creator.makeMCComponent("HiggsSUSYGG600", "/SUSYGluGluToHToTauTau_M-600_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM", "CMS", ".*root", 1.0)
+
+HiggsSUSYGG600 = creator.makeMCComponent("HiggsSUSYGG600", "/SUSYGluGluToHToTauTau_M-600_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+#HiggsSUSYGG600 = creator.makeMCComponent("HiggsSUSYGG600", "/SUSYGluGluToHToTauTau_M-600_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM", "CMS", ".*root", 1.0)
+
 HiggsSUSYGG700 = creator.makeMCComponent("HiggsSUSYGG700", "/SUSYGluGluToHToTauTau_M-700_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM", "CMS", ".*root", 1.0)
 HiggsSUSYGG800 = creator.makeMCComponent("HiggsSUSYGG800", "/SUSYGluGluToHToTauTau_M-800_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 HiggsSUSYGG900 = creator.makeMCComponent("HiggsSUSYGG900", "/SUSYGluGluToHToTauTau_M-900_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 HiggsSUSYGG1000 = creator.makeMCComponent("HiggsSUSYGG1000", "/SUSYGluGluToHToTauTau_M-1000_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 HiggsSUSYGG1200 = creator.makeMCComponent("HiggsSUSYGG1200", "/SUSYGluGluToHToTauTau_M-1200_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
-HiggsSUSYGG1400 = creator.makeMCComponent("HiggsSUSYGG1400", "/SUSYGluGluToHToTauTau_M-1400_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM", "CMS", ".*root", 1.0)
+
+#HiggsSUSYGG1400 = creator.makeMCComponent("HiggsSUSYGG1400", "/SUSYGluGluToHToTauTau_M-1400_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM", "CMS", ".*root", 1.0)
+HiggsSUSYGG1400 = creator.makeMCComponent("HiggsSUSYGG1400", "/SUSYGluGluToHToTauTau_M-1400_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
+
 HiggsSUSYGG1500 = creator.makeMCComponent("HiggsSUSYGG1500", "/SUSYGluGluToHToTauTau_M-1500_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 HiggsSUSYGG1600 = creator.makeMCComponent("HiggsSUSYGG1600", "/SUSYGluGluToHToTauTau_M-1600_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)
 HiggsSUSYGG1800 = creator.makeMCComponent("HiggsSUSYGG1800", "/SUSYGluGluToHToTauTau_M-1800_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM", "CMS", ".*root", 1.0)

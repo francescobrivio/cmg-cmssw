@@ -16,6 +16,8 @@ from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import mc_triggers,
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauMu import data_triggers, data_triggerfilters
 from CMGTools.H2TauTau.proto.samples.spring15.higgs import HiggsGGH125, HiggsVBF125, HiggsTTH125
 from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG160 as ggh160
+from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG180, HiggsSUSYGG300, HiggsSUSYGG600, HiggsSUSYGG900, HiggsSUSYGG1500, HiggsSUSYGG1800
+from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG80, HiggsSUSYGG1400, HiggsSUSYGG2300, HiggsSUSYGG2600, HiggsSUSYGG2900, HiggsSUSYGG3200
 
 from CMGTools.H2TauTau.htt_ntuple_base_cff import puFileData, puFileMC, eventSelector
 
@@ -56,10 +58,12 @@ treeProducer.addIsoInfo = True
 
 # Sync for datacards samples
 #samples = [ggh160]
-samples = [TT_pow_ext, WJetsToLNu_LO, DYJetsToLL_M50_LO]
-samples = [TBar_tWch, T_tWch, ST_tchan_anti, ST_tchan_top]
+#samples = [TT_pow_ext, WJetsToLNu_LO, DYJetsToLL_M50_LO]
+#samples = [TBar_tWch, T_tWch, ST_tchan_anti, ST_tchan_top]
 #samples = [VVTo2L2Nu, WWTo1L1Nu2Q, ZZTo2L2Q, ZZTo4L, WWToLNuQQ]
 #samples = [WWTo2L2Nu, WZTo2L2Q, WZTo3L, WZTo1L3Nu, WZTo1L1Nu2Q]
+#samples = [HiggsSUSYGG180, HiggsSUSYGG300, HiggsSUSYGG600, HiggsSUSYGG900, HiggsSUSYGG1500, HiggsSUSYGG1800]
+samples = [HiggsSUSYGG80, HiggsSUSYGG1400, HiggsSUSYGG2300, HiggsSUSYGG2600, HiggsSUSYGG2900, HiggsSUSYGG3200]
 
 split_factor = 1e5
 
@@ -114,11 +118,11 @@ if not production:
     #comp = DYJetsToLL_M50_LO
     #comp = WJetsToLNu_LO
     comp = TT_pow_ext
-    selectedComponents = [comp]
-    #selectedComponents = samples
+    #selectedComponents = [comp]
+    selectedComponents = samples
     for comp in selectedComponents :
         comp.splitFactor = 1
-        comp.fineSplitFactor = 6
+        comp.fineSplitFactor = 1
     # comp.files = comp.files[]
 
 

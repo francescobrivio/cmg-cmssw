@@ -64,7 +64,7 @@ tau1Weighter = cfg.Analyzer(
   lepton      = 'leg1'              ,
   verbose     = False               ,
   disable     = True                ,
-  DYweighter  = False                ,
+  DYweighter  = True                ,
   )
 
 tau2Weighter = cfg.Analyzer(
@@ -75,7 +75,7 @@ tau2Weighter = cfg.Analyzer(
   lepton      = 'leg2'              ,
   verbose     = False               ,
   disable     = True                ,
-  DYweighter  = False                ,
+  DYweighter  = True                ,
   )
 
 treeProducer = cfg.Analyzer(
@@ -209,11 +209,13 @@ if not production:
   #selectedComponents = data_list
   #for comp in selectedComponents:
   comp.splitFactor     = 1
-  comp.fineSplitFactor = 3
+  comp.fineSplitFactor = 4
   #comp.files           = comp.files[:1]
 
 from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
 #preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg_05Oct.py")
+#preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg.py")
+#preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg_TT.py")
 preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_cfg_WJets.py")
 
 # the following is declared in case this cfg is used in input to the
