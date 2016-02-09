@@ -100,6 +100,9 @@ class GeneratorAnalyzer( Analyzer ):
             if interestingPdgId(id):
                 #print "    pass pdgId"
                 ok = True
+            if not ok and id in [11, 13, 15] and abs(mom.pdgId()) in [1,2,3,4,5,21]:
+                # Lepton e.g. in off-shell DY with the mother being one of the incoming partons
+                ok = True
             ### no: we don't select by decay, so that we keep the particle summary free of incoming partons and such
             # if not ok and any(interestingPdgId(d.pdgId()) for d in realGenDaughters(p)):
             #    #print "    pass dau"
