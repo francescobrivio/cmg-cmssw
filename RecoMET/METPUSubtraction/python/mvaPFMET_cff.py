@@ -66,8 +66,8 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
     srcMVAPileupJetId = cms.InputTag('puJetIdForPFMVAMEt','fullDiscriminant'),
     srcPFCandidates = cms.InputTag('particleFlow'),
     srcVertices = cms.InputTag('offlinePrimaryVertices'),
-    #srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus"), # FRANCESCO: added collections of slimmed ele/mu/tau
-    srcLeptons = cms.VInputTag(),#"isomuons","isoelectrons","isotaus") # NOTE: you need to set this to collections of electrons, muons and tau-jets
+    srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus"), # FRANCESCO: added collections of slimmed ele/mu/tau
+    #srcLeptons = cms.VInputTag(),#"isomuons","isoelectrons","isotaus") # NOTE: you need to set this to collections of electrons, muons and tau-jets
                                  #                                             passing the lepton reconstruction & identification criteria applied in your analysis
     minNumLeptons = cms.int32(0),                     
     globalThreshold = cms.double(-1.),#pfMet.globalThreshold,
